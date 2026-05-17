@@ -1,22 +1,21 @@
 import streamlit as st
 import sys
 sys.path.append('.')
-from data_loader import load_data, get_rfm
+from data_loader import get_data, get_rfm
 import plotly.graph_objects as go
 import plotly.express as px
-import pandas as pd
 
-st.markdown('<div class="section-title">Customer Insights</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">Customer Insights</div>',
+            unsafe_allow_html=True)
 st.markdown("#### RFM Segmentation and Customer Behaviour Analysis")
 st.markdown("---")
 
 with st.spinner("Loading data..."):
-    df  = load_data()
+    df  = get_data()
     rfm = get_rfm(df)
 
 total_customers  = df['CustomerID'].nunique()
 avg_order_value  = df['Revenue'].sum() / df['InvoiceNo'].nunique()
-top_customer     = df.groupby('CustomerID')['Revenue'].sum().idxmax()
 top_customer_rev = df.groupby('CustomerID')['Revenue'].sum().max()
 avg_frequency    = rfm['Frequency'].mean()
 avg_recency      = rfm['Recency'].mean()
@@ -35,20 +34,19 @@ c5, c6, c7, c8 = st.columns(4)
 c5.metric("Avg Recency (days)", f"{avg_recency:.0f}")
 c6.metric("Avg Order Freq",     f"{avg_frequency:.1f}")
 c7.metric("Avg Spend/Customer", f"£{avg_monetary:,.0f}")
-c8.metric("Top Customer ID",    top_customer)
+c8.metric("Total Segments",     "5")
 
 st.markdown("---")
 
-# Segmentation
-col1, col2 = st.columns([1, 1])
 colors = {
-    'Champions':           '#1B3A5C',
+    'Champions':           '#0D1B2A',
     'Loyal Customers':     '#4A90D9',
     'Potential Loyalists': '#7FB3E8',
-    'At Risk':             '#E67E22',
-    'Lost':                '#E74C3C'
+    'At Risk':             '#e67e22',
+    'Lost':                '#e74c3c'
 }
 
+col1, col2 = st.columns([1, 1])
 with col1:
     st.markdown("### Customer Segments")
     seg_counts = rfm['Segment'].value_counts().reset_index()
@@ -62,7 +60,7 @@ with col1:
     fig.update_layout(
         height=320, showlegend=False,
         paper_bgcolor='white',
-        margin=dict(l=0,r=0,t=10,b=0))
+        margin=dict(l=0, r=0, t=10, b=0))
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
@@ -77,7 +75,7 @@ with col2:
                             'Avg Recency','Avg Orders','Avg Revenue (£)']
     st.dataframe(seg_summary, use_container_width=True, hide_index=True)
 
-    st.markdown("### Segment Revenue Share")
+    st.markdown("### Revenue by Segment")
     seg_rev = rfm.groupby('Segment')['Monetary'].sum().reset_index()
     fig2 = go.Figure(go.Bar(
         x=seg_rev['Monetary'], y=seg_rev['Segment'],
@@ -95,7 +93,6 @@ with col2:
 
 st.markdown("---")
 
-# Scatter + Distribution
 col3, col4 = st.columns(2)
 with col3:
     st.markdown("### Recency vs Revenue")
@@ -108,7 +105,7 @@ with col3:
         height=320, plot_bgcolor='white', paper_bgcolor='white',
         xaxis=dict(showgrid=True, gridcolor='#f0f0f0'),
         yaxis=dict(showgrid=True, gridcolor='#f0f0f0'),
-        margin=dict(l=0,r=0,t=10,b=0))
+        margin=dict(l=0, r=0, t=10, b=0))
     st.plotly_chart(fig3, use_container_width=True)
 
 with col4:
@@ -119,50 +116,13 @@ with col4:
     fig4.update_layout(
         height=320, plot_bgcolor='white', paper_bgcolor='white',
         xaxis=dict(title='Number of Orders', showgrid=False),
-        yaxis=dict(title='Number of Customers',
+        yaxis=dict(title='Customers',
                    showgrid=True, gridcolor='#f0f0f0'),
-        margin=dict(l=0,r=0,t=10,b=0))
+        margin=dict(l=0, r=0, t=10, b=0))
     st.plotly_chart(fig4, use_container_width=True)
 
 st.markdown("---")
-
-# Revenue distribution + Top customers
-col5, col6 = st.columns(2)
-with col5:
-    st.markdown("### Monetary Distribution")
-    fig5 = go.Figure(go.Histogram(
-        x=rfm[rfm['Monetary'] < rfm['Monetary'].quantile(0.95)]['Monetary'],
-        nbinsx=30, marker_color='#1B3A5C', opacity=0.8))
-    fig5.update_layout(
-        height=300, plot_bgcolor='white', paper_bgcolor='white',
-        xaxis=dict(title='Total Revenue (£)', showgrid=False),
-        yaxis=dict(title='Customers',
-                   showgrid=True, gridcolor='#f0f0f0'),
-        margin=dict(l=0,r=0,t=10,b=0))
-    st.plotly_chart(fig5, use_container_width=True)
-
-with col6:
-    st.markdown("### Top 10 Customers")
-    top_c = (df.groupby('CustomerID')
-             .agg(Revenue=('Revenue','sum'),
-                  Orders =('InvoiceNo','nunique'))
-             .reset_index()
-             .sort_values('Revenue', ascending=False)
-             .head(10))
-    fig6 = go.Figure(go.Bar(
-        x=top_c['Revenue'], y=top_c['CustomerID'],
-        orientation='h', marker_color='#E67E22',
-        text=[f"£{v:,.0f}" for v in top_c['Revenue']],
-        textposition='outside'))
-    fig6.update_layout(
-        height=300, plot_bgcolor='white', paper_bgcolor='white',
-        xaxis=dict(showgrid=False),
-        yaxis=dict(autorange='reversed'),
-        margin=dict(l=0, r=80, t=10, b=0))
-    st.plotly_chart(fig6, use_container_width=True)
-
-st.markdown("---")
-st.markdown("### Top 15 Customers — Full Detail")
+st.markdown("### Top 15 Customers by Revenue")
 top_customers = (df.groupby('CustomerID')
     .agg(Total_Revenue=('Revenue', 'sum'),
          Total_Orders =('InvoiceNo','nunique'),

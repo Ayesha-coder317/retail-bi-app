@@ -1,15 +1,17 @@
 import streamlit as st
 import sys
 sys.path.append('.')
-from data_loader import load_data
+from data_loader import get_data
 import plotly.graph_objects as go
 import pandas as pd
 
-st.markdown('<div class="section-title">📉 Sales Trends</div>',
+st.markdown('<div class="section-title">Sales Trends</div>',
             unsafe_allow_html=True)
+st.markdown("#### Monthly Revenue, Growth Rate and Day Analysis")
+st.markdown("---")
 
 with st.spinner("Loading data..."):
-    df = load_data()
+    df = get_data()
 
 col1, col2 = st.columns(2)
 with col1:
@@ -42,7 +44,7 @@ fig.add_trace(go.Bar(
 fig.add_trace(go.Scatter(
     x=monthly['Month'], y=monthly['Revenue'],
     mode='lines+markers', name='Trend',
-    line=dict(color='#1B3A5C', width=2),
+    line=dict(color='#0D1B2A', width=2),
     marker=dict(size=5)))
 fig.update_layout(
     height=380, plot_bgcolor='white', paper_bgcolor='white',
@@ -77,7 +79,7 @@ dow['InvoiceDate'] = pd.Categorical(
 dow = dow.sort_values('InvoiceDate')
 fig3 = go.Figure(go.Bar(
     x=dow['InvoiceDate'], y=dow['Revenue'],
-    marker_color='#E67E22'))
+    marker_color='#e67e22'))
 fig3.update_layout(
     height=300, plot_bgcolor='white', paper_bgcolor='white',
     yaxis=dict(showgrid=True, gridcolor='#f0f0f0', title='Revenue (£)'),
