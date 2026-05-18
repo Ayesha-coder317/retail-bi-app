@@ -3,146 +3,113 @@ import sys
 sys.path.append('.')
 from data_loader import load_from_csv, load_from_excel, load_from_api, get_data
 
-# ── LANDING HERO ──────────────────────────────────────────────────
+# ── HERO ──────────────────────────────────────────────────────────
 st.markdown("""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600;700&display=swap');
+<div style="background:linear-gradient(160deg,#EEF2FF 0%,#F5F0FF 50%,#FFF5F0 100%);
+            border-radius:20px;padding:64px 48px 56px 48px;
+            text-align:center;margin-bottom:28px;">
 
-.hero-wrap {
-    background: linear-gradient(160deg, #EEF2FF 0%, #F5F0FF 40%, #FFF5F0 100%);
-    border-radius: 20px;
-    padding: 64px 48px 56px 48px;
-    text-align: center;
-    margin-bottom: 28px;
-    position: relative;
-    overflow: hidden;
-}
-.hero-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: white;
-    border-radius: 12px;
-    padding: 10px 18px;
-    margin-bottom: 36px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.08);
-}
-.hero-badge-icon {
-    width: 32px; height: 32px;
-    background: #1A1A6E;
-    border-radius: 8px;
-    display: flex; align-items: center;
-    justify-content: center;
-    font-size: 14px; color: white;
-}
-.hero-badge-text {
-    text-align: left;
-}
-.hero-badge-title {
-    font-size: 12px; font-weight: 700;
-    color: #1A1A6E;
-}
-.hero-badge-sub {
-    font-size: 10px; color: #999;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-}
-.hero-title {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 62px;
-    font-weight: 900;
-    color: #1A1A6E;
-    line-height: 1.1;
-    margin-bottom: 20px;
-    letter-spacing: -1px;
-}
-.hero-subtitle {
-    font-size: 16px;
-    color: #666;
-    max-width: 560px;
-    margin: 0 auto 32px auto;
-    line-height: 1.7;
-    font-weight: 400;
-}
-.hero-tags {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 36px;
-}
-.hero-tag {
-    background: white;
-    border: 1px solid #E0E0E0;
-    border-radius: 20px;
-    padding: 6px 16px;
-    font-size: 12px;
-    font-weight: 500;
-    color: #555;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}
-.hero-pills {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
-    flex-wrap: wrap;
-}
-.hero-pill {
-    background: white;
-    border-radius: 30px;
-    padding: 8px 20px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #1A1A6E;
-    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
-    border: 1px solid rgba(26,26,110,0.1);
-}
-</style>
-
-<div class="hero-wrap">
-    <!-- Badge -->
-    <div style="display:flex;justify-content:center;margin-bottom:36px;">
-        <div class="hero-badge">
-            <div class="hero-badge-icon">▶</div>
-            <div class="hero-badge-text">
-                <div class="hero-badge-title">COM6001 Final Year Project</div>
-                <div class="hero-badge-sub">Buckinghamshire New University · 2025–26</div>
+    <div style="display:inline-flex;align-items:center;gap:12px;
+                background:white;border-radius:12px;
+                padding:10px 20px;margin-bottom:36px;
+                box-shadow:0 2px 16px rgba(0,0,0,0.08);">
+        <div style="width:32px;height:32px;background:#1A1A6E;
+                    border-radius:8px;display:flex;align-items:center;
+                    justify-content:center;font-size:14px;color:white;">
+            ▶
+        </div>
+        <div style="text-align:left;">
+            <div style="font-size:12px;font-weight:700;color:#1A1A6E;">
+                COM6001 Final Year Project
+            </div>
+            <div style="font-size:10px;color:#999;
+                        text-transform:uppercase;letter-spacing:0.5px;">
+                Buckinghamshire New University · 2025–26
             </div>
         </div>
     </div>
 
-    <!-- Title -->
-    <div class="hero-title">
+    <div style="font-size:58px;font-weight:900;color:#1A1A6E;
+                line-height:1.1;margin-bottom:20px;
+                letter-spacing:-1px;">
         Retail Business<br>Intelligence &<br>Analytics Platform
     </div>
 
-    <!-- Subtitle -->
-    <div class="hero-subtitle">
+    <div style="font-size:16px;color:#666;max-width:560px;
+                margin:0 auto 32px auto;line-height:1.8;">
         Transform raw transactional data into strategic intelligence.
         Role-based dashboards for every level of your organisation —
         powered by RFM segmentation and real-time data upload.
     </div>
 
-    <!-- Feature tags -->
-    <div class="hero-tags">
-        <span class="hero-tag">CSV / Excel Upload</span>
-        <span class="hero-tag">REST API Integration</span>
-        <span class="hero-tag">RFM Segmentation</span>
-        <span class="hero-tag">AI Business Insights</span>
-        <span class="hero-tag">Interactive Charts</span>
-        <span class="hero-tag">Multi-Role Views</span>
+    <div style="display:flex;justify-content:center;
+                gap:10px;flex-wrap:wrap;margin-bottom:36px;">
+        <span style="background:white;border:1px solid #E0E0E0;
+                     border-radius:20px;padding:6px 16px;
+                     font-size:12px;font-weight:500;color:#555;
+                     box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            CSV / Excel Upload
+        </span>
+        <span style="background:white;border:1px solid #E0E0E0;
+                     border-radius:20px;padding:6px 16px;
+                     font-size:12px;font-weight:500;color:#555;
+                     box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            REST API Integration
+        </span>
+        <span style="background:white;border:1px solid #E0E0E0;
+                     border-radius:20px;padding:6px 16px;
+                     font-size:12px;font-weight:500;color:#555;
+                     box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            RFM Segmentation
+        </span>
+        <span style="background:white;border:1px solid #E0E0E0;
+                     border-radius:20px;padding:6px 16px;
+                     font-size:12px;font-weight:500;color:#555;
+                     box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            AI Business Insights
+        </span>
+        <span style="background:white;border:1px solid #E0E0E0;
+                     border-radius:20px;padding:6px 16px;
+                     font-size:12px;font-weight:500;color:#555;
+                     box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            Interactive Charts
+        </span>
+        <span style="background:white;border:1px solid #E0E0E0;
+                     border-radius:20px;padding:6px 16px;
+                     font-size:12px;font-weight:500;color:#555;
+                     box-shadow:0 1px 4px rgba(0,0,0,0.05);">
+            Multi-Role Views
+        </span>
     </div>
 
-    <!-- Author pills -->
-    <div class="hero-pills">
-        <div class="hero-pill">Ayesha Jahangir</div>
-        <div class="hero-pill">ID: 22504895</div>
-        <div class="hero-pill">Supervisor: Syeda Faiza Nasim</div>
+    <div style="display:flex;justify-content:center;
+                gap:12px;flex-wrap:wrap;">
+        <div style="background:white;border-radius:30px;
+                    padding:8px 22px;font-size:13px;
+                    font-weight:600;color:#1A1A6E;
+                    box-shadow:0 2px 12px rgba(0,0,0,0.08);
+                    border:1px solid rgba(26,26,110,0.1);">
+            Ayesha Jahangir
+        </div>
+        <div style="background:white;border-radius:30px;
+                    padding:8px 22px;font-size:13px;
+                    font-weight:600;color:#1A1A6E;
+                    box-shadow:0 2px 12px rgba(0,0,0,0.08);
+                    border:1px solid rgba(26,26,110,0.1);">
+            ID: 22504895
+        </div>
+        <div style="background:white;border-radius:30px;
+                    padding:8px 22px;font-size:13px;
+                    font-weight:600;color:#1A1A6E;
+                    box-shadow:0 2px 12px rgba(0,0,0,0.08);
+                    border:1px solid rgba(26,26,110,0.1);">
+            Supervisor: Syeda Faiza Nasim
+        </div>
     </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ── STATS ROW ─────────────────────────────────────────────────────
+# ── STATS ─────────────────────────────────────────────────────────
 c1,c2,c3,c4 = st.columns(4)
 c1.metric("Role Views",   "6")
 c2.metric("KPIs Tracked", "10+")
@@ -151,11 +118,14 @@ c4.metric("Test Cases",   "44")
 
 st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
 
-# ── CONNECT DATA ──────────────────────────────────────────────────
+# ── DATA CONNECT ──────────────────────────────────────────────────
 st.markdown("""
-<div class="chart-card">
-    <div class="chart-title">Connect Your Data</div>
-    <div class="chart-sub">
+<div style="background:white;border-radius:12px;
+            padding:20px 24px;border:1px solid #EBEBEB;
+            margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:700;color:#1A1A2E;
+                margin-bottom:2px;">Connect Your Data</div>
+    <div style="font-size:11px;color:#AAAAAA;margin-bottom:16px;">
         Upload a file or connect a live API.
         Lumiq auto-detects your columns automatically.
     </div>
@@ -163,7 +133,7 @@ st.markdown("""
 
 source = st.radio(
     "",
-    ["Use Sample Data", "Upload CSV / Excel", "Connect via API URL"],
+    ["Use Sample Data","Upload CSV / Excel","Connect via API URL"],
     horizontal=True,
     label_visibility="collapsed"
 )
@@ -179,8 +149,8 @@ if source == "Upload CSV / Excel":
         </div>
     </div>
     """, unsafe_allow_html=True)
-    uploaded = st.file_uploader(
-        "Drop file here", type=["csv","xlsx","xls"])
+    uploaded = st.file_uploader("Drop file here",
+                                type=["csv","xlsx","xls"])
     if uploaded:
         with st.spinner("Processing..."):
             if uploaded.name.endswith('.csv'):
@@ -205,9 +175,8 @@ if source == "Upload CSV / Excel":
                 st.dataframe(df.head(5), use_container_width=True)
 
 elif source == "Connect via API URL":
-    api_url = st.text_input(
-        "API endpoint URL",
-        placeholder="https://your-api.com/data")
+    api_url = st.text_input("API endpoint URL",
+                            placeholder="https://your-api.com/data")
     if st.button("Connect", key="fetch_api"):
         if not api_url:
             st.warning("Enter a URL.")
@@ -246,9 +215,13 @@ df    = get_data()
 label = st.session_state.get('data_label','Sample Data')
 
 st.markdown(f"""
-<div class="chart-card">
-    <div class="chart-title">Active Dataset — {label}</div>
-    <div class="chart-sub">Currently loaded data summary</div>
+<div style="background:white;border-radius:12px;
+            padding:20px 24px;border:1px solid #EBEBEB;
+            margin-bottom:16px;">
+    <div style="font-size:13px;font-weight:700;color:#1A1A2E;
+                margin-bottom:2px;">Active Dataset — {label}</div>
+    <div style="font-size:11px;color:#AAAAAA;
+                margin-bottom:16px;">Currently loaded data</div>
 """, unsafe_allow_html=True)
 
 c1,c2,c3,c4 = st.columns(4)
@@ -265,30 +238,23 @@ st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
 st.markdown("""
 <div style="font-size:11px;font-weight:700;color:#AAAAAA;
             text-transform:uppercase;letter-spacing:1px;
-            margin-bottom:16px;">
-    Available Dashboard Views
-</div>
+            margin-bottom:16px;">Available Dashboard Views</div>
 """, unsafe_allow_html=True)
 
 roles = [
-    ("exec",     "📊", "#4B7BF5",
-     "Executive",
+    ("exec",     "📊", "#4B7BF5", "Executive",
      "C-Suite Overview",
      "Revenue totals, global map, MoM growth, AI insights"),
-    ("sales",    "📈", "#2ECC71",
-     "Sales Manager",
+    ("sales",    "📈", "#2ECC71", "Sales Manager",
      "Sales Performance",
      "KPIs, country breakdown, AOV trend, top products"),
-    ("trends",   "📉", "#F39C12",
-     "Sales Trends",
+    ("trends",   "📉", "#F39C12", "Sales Trends",
      "Trend Analysis",
      "Monthly trends, growth rate, order volume"),
-    ("customer", "👥", "#E74C3C",
-     "Customer Analyst",
+    ("customer", "👥", "#E74C3C", "Customer Analyst",
      "RFM Segmentation",
      "Segments, recency scatter, retention rate"),
-    ("product",  "📦", "#9B59B6",
-     "Product Manager",
+    ("product",  "📦", "#9B59B6", "Product Manager",
      "Product Analysis",
      "Revenue rankings, geo map, price distribution"),
 ]
@@ -300,7 +266,6 @@ for col, (key, icon, color, name, subtitle, desc) in \
         st.markdown(f"""
         <div style="background:white;border-radius:14px;
                     padding:20px 16px;
-                    border-top:3px solid {color};
                     border:1px solid #EBEBEB;
                     border-top:3px solid {color};
                     min-height:160px;
@@ -318,33 +283,32 @@ for col, (key, icon, color, name, subtitle, desc) in \
                 {subtitle}
             </div>
             <div style="font-size:11px;color:#AAAAAA;
-                        line-height:1.6;">
-                {desc}
-            </div>
+                        line-height:1.6;">{desc}</div>
         </div>
         """, unsafe_allow_html=True)
-        if st.button(f"Open {name}", key=f"open_{key}",
+        if st.button(f"Open {name}",
+                     key=f"open_{key}",
                      use_container_width=True):
             st.session_state.page = key
             st.rerun()
 
-st.markdown("<div style='height:24px'></div>", unsafe_allow_html=True)
+st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
 
 # ── FOOTER ────────────────────────────────────────────────────────
 st.markdown("""
 <div style="background:#1A1A2E;border-radius:14px;
-            padding:28px 36px;
-            display:flex;justify-content:space-between;
+            padding:28px 36px;display:flex;
+            justify-content:space-between;
             align-items:center;flex-wrap:wrap;gap:12px;">
     <div>
         <div style="font-size:18px;font-weight:900;
                     color:white;letter-spacing:2px;">LUMIQ</div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.3);
-                    margin-top:3px;">
+        <div style="font-size:11px;
+                    color:rgba(255,255,255,0.3);margin-top:3px;">
             Retail Business Intelligence Platform
         </div>
     </div>
-    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <div style="background:rgba(255,255,255,0.06);
                     border:1px solid rgba(255,255,255,0.1);
                     border-radius:20px;padding:5px 14px;
