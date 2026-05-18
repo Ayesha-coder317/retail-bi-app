@@ -38,6 +38,7 @@ st.markdown("""
     div[data-testid="metric-container"] [data-testid="stMetricDelta"] {
         font-size: 12px !important; font-weight: 600 !important;
     }
+
     .chart-card {
         background: white; border-radius: 12px;
         padding: 20px 24px; border: 1px solid #EBEBEB;
@@ -45,40 +46,56 @@ st.markdown("""
     }
     .chart-title { font-size:13px; font-weight:700; color:#1A1A2E; margin-bottom:2px; }
     .chart-sub   { font-size:11px; color:#AAAAAA; margin-bottom:12px; }
+
     .insight-card {
         background: #F0F4FF; border-radius: 12px;
         padding: 14px 18px; border-left: 4px solid #4B7BF5;
         margin-bottom: 10px;
     }
-    .insight-text { font-size:13px; color:#1A1A2E; font-weight:500; line-height:1.5; }
-    .insight-label { font-size:10px; font-weight:700; color:#4B7BF5;
-                     text-transform:uppercase; letter-spacing:0.5px; margin-bottom:4px; }
-
-    section[data-testid="stSidebar"] button {
-        background: transparent !important;
-        border: none !important; border-radius: 8px !important;
-        width: 100% !important; height: 40px !important;
-        padding: 0 12px !important; margin: 1px 0 !important;
-        display: flex !important; align-items: center !important;
-        font-size: 13px !important; font-weight: 500 !important;
-        box-shadow: none !important;
-        color: rgba(255,255,255,0.5) !important;
-        transition: all 0.15s !important;
-        text-align: left !important;
-        justify-content: flex-start !important;
+    .insight-text {
+        font-size: 13px; color: #1A1A2E;
+        font-weight: 500; line-height: 1.5;
     }
-    section[data-testid="stSidebar"] button:hover {
+    .insight-label {
+        font-size: 10px; font-weight: 700; color: #4B7BF5;
+        text-transform: uppercase; letter-spacing: 0.5px;
+        margin-bottom: 4px;
+    }
+
+    /* Sidebar buttons */
+    section[data-testid="stSidebar"] div[data-testid="stButton"] {
+        background: transparent !important;
+        padding: 0 8px !important;
+    }
+    section[data-testid="stSidebar"] div[data-testid="stButton"] > button {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 8px !important;
+        width: 100% !important;
+        text-align: left !important;
+        padding: 10px 12px !important;
+        height: auto !important;
+        min-height: 40px !important;
+        color: rgba(255,255,255,0.5) !important;
+        font-size: 13px !important;
+        box-shadow: none !important;
+        transition: all 0.15s !important;
+    }
+    section[data-testid="stSidebar"] div[data-testid="stButton"] > button:hover {
         background: rgba(255,255,255,0.08) !important;
         color: white !important;
     }
-    section[data-testid="stSidebar"] button p {
-        font-size: 13px !important; color: inherit !important;
-        margin: 0 !important; text-align: left !important;
+    section[data-testid="stSidebar"] div[data-testid="stButton"] > button p {
+        color: inherit !important;
+        font-size: 13px !important;
+        text-align: left !important;
+        margin: 0 !important;
     }
     div[data-testid="stSidebar"] div[data-testid="stRadio"] {
         display: none !important;
     }
 
+    /* Top nav radio */
     div[data-testid="stRadio"] > div {
         display: flex !important; flex-direction: row !important;
         gap: 0 !important; background: transparent !important;
@@ -101,6 +118,7 @@ st.markdown("""
     }
     div[data-testid="stRadio"] input { display: none !important; }
 
+    /* Tabs */
     .stTabs [data-baseweb="tab-list"] {
         gap: 0; background: transparent;
         border-bottom: 1px solid #EBEBEB;
@@ -158,7 +176,7 @@ data_lbl = st.session_state.get('data_label', 'Sample Data')
 
 # ── SIDEBAR ───────────────────────────────────────────────────────
 with st.sidebar:
-    # Logo
+
     st.markdown("""
     <div style="padding:20px 16px 12px 16px;">
         <div style="display:flex;align-items:center;gap:10px;">
@@ -184,17 +202,12 @@ with st.sidebar:
     </div>
     <div style="height:1px;background:rgba(255,255,255,0.08);
                 margin:0 16px 16px 16px;"></div>
-    """, unsafe_allow_html=True)
-
-    # Navigation label
-    st.markdown("""
     <div style="font-size:9px;font-weight:700;
                 color:rgba(255,255,255,0.3);
                 text-transform:uppercase;letter-spacing:1.5px;
                 padding:0 16px;margin-bottom:6px;">Navigation</div>
     """, unsafe_allow_html=True)
 
-    # Nav buttons
     for key, p in pages.items():
         is_active = current == key
         if is_active:
@@ -203,8 +216,7 @@ with st.sidebar:
                         background:rgba(75,123,245,0.18);
                         border-left:3px solid #4B7BF5;
                         border-radius:8px;
-                        padding:10px 12px;margin:1px 8px;
-                        cursor:pointer;">
+                        padding:10px 12px;margin:1px 8px;">
                 <span style="font-size:16px;">{p['icon']}</span>
                 <div>
                     <div style="font-size:13px;font-weight:700;
@@ -216,22 +228,19 @@ with st.sidebar:
             </div>
             """, unsafe_allow_html=True)
         else:
-            if st.button(f"{p['icon']}  {p['label']}",
-                         key=f"nav_{key}",
-                         help=p['desc'],
-                         use_container_width=True):
+            if st.button(
+                f"{p['icon']}  {p['label']}",
+                key=f"nav_{key}",
+                help=p['desc'],
+                use_container_width=True
+            ):
                 st.session_state.page = key
                 st.rerun()
 
-    # Divider
     st.markdown("""
     <div style="height:1px;background:rgba(255,255,255,0.08);
-                margin:16px 16px 16px 16px;"></div>
-    """, unsafe_allow_html=True)
-
-    # Dataset status
-    st.markdown(f"""
-    <div style="padding:0 16px;margin-bottom:16px;">
+                margin:16px 16px;"></div>
+    <div style="padding:0 16px;margin-bottom:12px;">
         <div style="font-size:9px;font-weight:700;
                     color:rgba(255,255,255,0.3);
                     text-transform:uppercase;letter-spacing:1.5px;
@@ -239,62 +248,63 @@ with st.sidebar:
         <div style="display:flex;align-items:center;gap:8px;">
             <div style="width:6px;height:6px;background:#2ECC71;
                         border-radius:50%;flex-shrink:0;"></div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.6);
-                        word-break:break-all;">{data_lbl[:22]}</div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.6);">
+                Sample Data
+            </div>
         </div>
     </div>
     <div style="height:1px;background:rgba(255,255,255,0.08);
                 margin:0 16px 16px 16px;"></div>
-    """, unsafe_allow_html=True)
-
-    # Project info
-    st.markdown("""
     <div style="padding:0 16px;">
         <div style="font-size:9px;font-weight:700;
                     color:rgba(255,255,255,0.3);
                     text-transform:uppercase;letter-spacing:1.5px;
-                    margin-bottom:10px;">Project Info</div>
-
+                    margin-bottom:12px;">Project Info</div>
         <div style="margin-bottom:8px;">
             <div style="font-size:10px;color:rgba(255,255,255,0.3);
                         margin-bottom:2px;">Student</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.75);
-                        font-weight:600;">Ayesha Jahangir</div>
+            <div style="font-size:12px;font-weight:600;
+                        color:rgba(255,255,255,0.75);">
+                Ayesha Jahangir
+            </div>
         </div>
-
         <div style="margin-bottom:8px;">
             <div style="font-size:10px;color:rgba(255,255,255,0.3);
                         margin-bottom:2px;">Student ID</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.75);
-                        font-weight:600;">22504895</div>
+            <div style="font-size:12px;font-weight:600;
+                        color:rgba(255,255,255,0.75);">22504895</div>
         </div>
-
         <div style="margin-bottom:8px;">
             <div style="font-size:10px;color:rgba(255,255,255,0.3);
                         margin-bottom:2px;">Supervisor</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.75);
-                        font-weight:600;">Syeda Faiza Nasim</div>
+            <div style="font-size:12px;font-weight:600;
+                        color:rgba(255,255,255,0.75);">
+                Syeda Faiza Nasim
+            </div>
         </div>
-
         <div style="margin-bottom:8px;">
             <div style="font-size:10px;color:rgba(255,255,255,0.3);
                         margin-bottom:2px;">Module</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.75);
-                        font-weight:600;">COM6001 FYP</div>
+            <div style="font-size:12px;font-weight:600;
+                        color:rgba(255,255,255,0.75);">
+                COM6001 FYP
+            </div>
         </div>
-
         <div style="margin-bottom:8px;">
             <div style="font-size:10px;color:rgba(255,255,255,0.3);
                         margin-bottom:2px;">University</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.75);
-                        font-weight:600;">BNU 2025–26</div>
+            <div style="font-size:12px;font-weight:600;
+                        color:rgba(255,255,255,0.75);">
+                BNU 2025–26
+            </div>
         </div>
-
-        <div style="margin-bottom:0;">
+        <div>
             <div style="font-size:10px;color:rgba(255,255,255,0.3);
                         margin-bottom:2px;">Dataset</div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.75);
-                        font-weight:600;">UCI Online Retail</div>
+            <div style="font-size:12px;font-weight:600;
+                        color:rgba(255,255,255,0.75);">
+                UCI Online Retail
+            </div>
             <div style="font-size:10px;color:rgba(255,255,255,0.3);
                         margin-top:1px;">541,909 transactions</div>
         </div>
