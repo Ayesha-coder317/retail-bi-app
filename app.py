@@ -64,32 +64,37 @@ st.markdown("""
 
     /* Sidebar buttons */
     section[data-testid="stSidebar"] div[data-testid="stButton"] {
-        background: transparent !important;
-        padding: 0 8px !important;
-    }
-    section[data-testid="stSidebar"] div[data-testid="stButton"] > button {
-        background: transparent !important;
-        border: none !important;
-        border-radius: 8px !important;
-        width: 100% !important;
-        text-align: left !important;
-        padding: 10px 12px !important;
-        height: auto !important;
-        min-height: 40px !important;
-        color: rgba(255,255,255,0.5) !important;
-        font-size: 13px !important;
-        box-shadow: none !important;
-        transition: all 0.15s !important;
-    }
-    section[data-testid="stSidebar"] div[data-testid="stButton"] > button:hover {
-        background: rgba(255,255,255,0.08) !important;
-        color: white !important;
-    }
-    section[data-testid="stSidebar"] div[data-testid="stButton"] > button p {
-        color: inherit !important;
-        font-size: 13px !important;
-        text-align: left !important;
-        margin: 0 !important;
+    background: transparent !important;
+    padding: 0 8px !important;
+}
+section[data-testid="stSidebar"] div[data-testid="stButton"] > button {
+    background: rgba(255,255,255,0.06) !important;
+    border: 1px solid rgba(255,255,255,0.12) !important;
+    border-radius: 8px !important;
+    width: 100% !important;
+    text-align: left !important;
+    padding: 10px 12px !important;
+    height: auto !important;
+    min-height: 44px !important;
+    color: rgba(255,255,255,0.7) !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    box-shadow: none !important;
+    transition: all 0.15s !important;
+    margin-bottom: 4px !important;
+}
+section[data-testid="stSidebar"] div[data-testid="stButton"] > button:hover {
+    background: rgba(255,255,255,0.12) !important;
+    border-color: rgba(255,255,255,0.25) !important;
+    color: white !important;
+}
+section[data-testid="stSidebar"] div[data-testid="stButton"] > button p {
+    color: inherit !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    text-align: left !important;
+    margin: 0 !important;
+}
     }
     div[data-testid="stSidebar"] div[data-testid="stRadio"] {
         display: none !important;
