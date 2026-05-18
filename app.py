@@ -1,377 +1,412 @@
+import importlib
 import streamlit as st
+import data_loader
+
+data_loader = importlib.reload(data_loader)
 
 st.set_page_config(
     page_title="Lumiq",
     page_icon="L",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed",
 )
+
+pages = {
+    "home": {"label": "Home", "short": "Home", "desc": "Overview & Data Upload"},
+    "exec": {"label": "Executive Summary", "short": "Executive", "desc": "C-Suite KPI Overview"},
+    "sales": {"label": "Sales Analysis", "short": "Sales", "desc": "Sales KPIs & Performance"},
+    "trends": {"label": "Forecasting / Trends", "short": "Trends", "desc": "Monthly Trends & Growth"},
+    "customer": {"label": "Customer Insights", "short": "Customers", "desc": "RFM & Customer Behaviour"},
+    "product": {"label": "Product Performance", "short": "Products", "desc": "Product & Country Analysis"},
+}
+
+page_files = {
+    "home": "pages/home.py",
+    "exec": "pages/executive.py",
+    "sales": "pages/kpi.py",
+    "trends": "pages/sales.py",
+    "customer": "pages/customers.py",
+    "product": "pages/products.py",
+}
+
+query_page = st.query_params.get("page")
+if "page" not in st.session_state:
+    st.session_state.page = "home"
+if query_page in pages:
+    st.session_state.page = query_page
+
+current = st.session_state.page
+data_lbl = st.session_state.get("data_label", "Sample Data")
 
 st.markdown("""
 <style>
-    [data-testid="stSidebar"] {
-        background: #0D1B2A;
-        min-width: 200px !important;
-        max-width: 200px !important;
-    }
-    [data-testid="stSidebar"] * { color: white !important; }
-    [data-testid="stSidebarNav"] { display: none !important; }
-    .stApp { background: #F5F6FA; }
-    .block-container { padding: 0 !important; max-width: 100% !important; }
-    header[data-testid="stHeader"] { display: none !important; }
-    footer { display: none !important; }
-
-    div[data-testid="metric-container"] {
-        background: white; border-radius: 12px;
-        padding: 18px 20px; border: 1px solid #EBEBEB;
-        box-shadow: none;
-    }
-    div[data-testid="metric-container"] label {
-        font-size: 11px !important; font-weight: 600 !important;
-        color: #999 !important; text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    div[data-testid="metric-container"] [data-testid="metric-value"] {
-        font-size: 24px !important; font-weight: 700 !important;
-        color: #1A1A2E !important;
-    }
-    div[data-testid="metric-container"] [data-testid="stMetricDelta"] {
-        font-size: 12px !important; font-weight: 600 !important;
+    :root {
+        --navy: #1F3B60;
+        --ink: #172033;
+        --muted: #8B96A8;
+        --line: #E8EDF3;
+        --panel: #FFFFFF;
+        --page: #EEF3F6;
+        --accent: #78C6D6;
+        --rose: #C63D73;
+        --green: #2ECC71;
     }
 
-    .chart-card {
-        background: white; border-radius: 12px;
-        padding: 20px 24px; border: 1px solid #EBEBEB;
-        margin-bottom: 16px;
+    .stApp {
+        background: #CAD2DF;
     }
-    .chart-title { font-size:13px; font-weight:700; color:#1A1A2E; margin-bottom:2px; }
-    .chart-sub   { font-size:11px; color:#AAAAAA; margin-bottom:12px; }
-
-    .insight-card {
-        background: #F0F4FF; border-radius: 12px;
-        padding: 14px 18px; border-left: 4px solid #4B7BF5;
-        margin-bottom: 10px;
+    .block-container {
+        max-width: 1180px !important;
+        padding: 14px 18px 28px 18px !important;
     }
-    .insight-text {
-        font-size: 13px; color: #1A1A2E;
-        font-weight: 500; line-height: 1.5;
-    }
-    .insight-label {
-        font-size: 10px; font-weight: 700; color: #4B7BF5;
-        text-transform: uppercase; letter-spacing: 0.5px;
-        margin-bottom: 4px;
-    }
-
-    /* Sidebar buttons */
-    section[data-testid="stSidebar"] div[data-testid="stButton"] {
-    background: transparent !important;
-    padding: 0 8px !important;
-}
-section[data-testid="stSidebar"] div[data-testid="stButton"] > button {
-    background: rgba(255,255,255,0.06) !important;
-    border: 1px solid rgba(255,255,255,0.12) !important;
-    border-radius: 8px !important;
-    width: 100% !important;
-    text-align: left !important;
-    padding: 10px 12px !important;
-    height: auto !important;
-    min-height: 44px !important;
-    color: rgba(255,255,255,0.7) !important;
-    font-size: 13px !important;
-    font-weight: 500 !important;
-    box-shadow: none !important;
-    transition: all 0.15s !important;
-    margin-bottom: 4px !important;
-}
-section[data-testid="stSidebar"] div[data-testid="stButton"] > button:hover {
-    background: rgba(255,255,255,0.12) !important;
-    border-color: rgba(255,255,255,0.25) !important;
-    color: white !important;
-}
-section[data-testid="stSidebar"] div[data-testid="stButton"] > button p {
-    color: inherit !important;
-    font-size: 13px !important;
-    font-weight: 500 !important;
-    text-align: left !important;
-    margin: 0 !important;
-}
-    }
-    div[data-testid="stSidebar"] div[data-testid="stRadio"] {
+    header[data-testid="stHeader"],
+    footer,
+    section[data-testid="stSidebar"],
+    [data-testid="stSidebar"],
+    [data-testid="collapsedControl"],
+    [data-testid="stSidebarCollapsedControl"] {
         display: none !important;
     }
 
-    /* Top nav radio */
-    div[data-testid="stRadio"] > div {
-        display: flex !important; flex-direction: row !important;
-        gap: 0 !important; background: transparent !important;
-        padding: 0 !important; border-radius: 0 !important;
+    .dashboard-shell {
+        background: var(--page);
+        border-radius: 26px;
+        overflow: hidden;
+        box-shadow: 0 24px 60px rgba(31,59,96,0.18);
+        border: 1px solid rgba(255,255,255,0.65);
     }
-    div[data-testid="stRadio"] label {
-        padding: 0 16px !important; border-radius: 0 !important;
-        font-size: 13px !important; font-weight: 500 !important;
-        color: #AAAAAA !important; cursor: pointer !important;
-        border: none !important;
-        border-bottom: 2px solid transparent !important;
-        white-space: nowrap !important;
-        background: transparent !important; margin: 0 !important;
-        height: 56px !important; display: flex !important;
-        align-items: center !important;
+    .top-nav {
+        height: 76px;
+        background: var(--navy);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 32px;
     }
-    div[data-testid="stRadio"] label:has(input:checked) {
-        color: #1A1A2E !important; font-weight: 700 !important;
-        border-bottom: 2px solid #1A1A2E !important;
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        min-width: 180px;
     }
-    div[data-testid="stRadio"] input { display: none !important; }
+    .brand-mark {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        background: rgba(120,198,214,0.14);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .brand-name {
+        font-size: 15px;
+        font-weight: 900;
+        letter-spacing: 4px;
+    }
+    .nav-links {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        flex: 1;
+    }
+    .nav-links a {
+        color: rgba(255,255,255,0.78);
+        text-decoration: none;
+        font-size: 13px;
+        font-weight: 600;
+        padding: 27px 12px 24px 12px;
+        position: relative;
+    }
+    .nav-links a.active {
+        color: white;
+    }
+    .nav-links a.active:after {
+        content: "";
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #E6E95E;
+        position: absolute;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+    }
+    .nav-actions {
+        min-width: 180px;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 10px;
+        color: rgba(255,255,255,0.72);
+        font-size: 16px;
+    }
+    .nav-actions a {
+        width: 30px;
+        height: 30px;
+        border-radius: 9px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: rgba(255,255,255,0.76);
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 800;
+        border: 1px solid transparent;
+    }
+    .nav-actions a:hover {
+        color: white;
+        background: rgba(255,255,255,0.10);
+        border-color: rgba(255,255,255,0.14);
+    }
+    .avatar {
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: white;
+        color: var(--navy);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 900;
+    }
+    .content-surface {
+        padding: 26px 34px 36px 34px;
+    }
+    .page-titlebar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 24px;
+        color: var(--ink);
+        background: transparent;
+    }
+    .page-title {
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 1.4px;
+        text-transform: uppercase;
+    }
+    .dataset-pill {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        background: white;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 8px 14px;
+        color: var(--muted);
+        font-size: 12px;
+    }
+    .status-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--green);
+    }
 
-    /* Tabs */
+    div[data-testid="metric-container"] {
+        background: white;
+        border-radius: 16px;
+        padding: 18px 20px;
+        border: 1px solid var(--line);
+        box-shadow: 0 10px 30px rgba(31,59,96,0.06);
+    }
+    div[data-testid="metric-container"] label {
+        color: #6F7A8D !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+    }
+    div[data-testid="metric-container"] [data-testid="metric-value"] {
+        color: #283147 !important;
+        font-size: 28px !important;
+        font-weight: 700 !important;
+    }
+    div[data-testid="metric-container"] [data-testid="stMetricDelta"] {
+        font-size: 12px !important;
+        font-weight: 700 !important;
+    }
+
+    .chart-card {
+        background: white;
+        border-radius: 16px;
+        padding: 22px 24px;
+        border: 1px solid var(--line);
+        box-shadow: 0 10px 30px rgba(31,59,96,0.06);
+        margin-bottom: 18px;
+    }
+    .chart-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--ink);
+        margin-bottom: 5px;
+    }
+    .chart-sub {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 14px;
+    }
+    .insight-card {
+        background: #F6FAFE;
+        border-radius: 16px;
+        padding: 18px 20px;
+        border-left: 4px solid var(--accent);
+        border-top: 1px solid var(--line);
+        border-right: 1px solid var(--line);
+        border-bottom: 1px solid var(--line);
+        box-shadow: 0 10px 30px rgba(31,59,96,0.05);
+        margin-bottom: 12px;
+    }
+    .insight-label {
+        color: var(--accent);
+        font-size: 10px;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 1.3px;
+        margin-bottom: 8px;
+    }
+    .insight-text {
+        color: var(--ink);
+        font-size: 13px;
+        line-height: 1.6;
+        font-weight: 600;
+    }
     .stTabs [data-baseweb="tab-list"] {
-        gap: 0; background: transparent;
-        border-bottom: 1px solid #EBEBEB;
+        border-bottom: 1px solid var(--line);
+        gap: 18px;
     }
     .stTabs [data-baseweb="tab"] {
-        padding: 10px 20px; font-size: 13px;
-        font-weight: 500; color: #AAAAAA;
-        border: none; background: transparent;
-        border-bottom: 2px solid transparent;
+        color: #9AA4B5;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 13px 0;
     }
     .stTabs [aria-selected="true"] {
-        color: #1A1A2E !important; font-weight: 700 !important;
-        border-bottom: 2px solid #1A1A2E !important;
-        background: transparent !important;
+        color: var(--ink) !important;
+        border-bottom: 3px solid var(--rose) !important;
     }
-
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: #F5F6FA; }
-    ::-webkit-scrollbar-thumb { background: #DDD; border-radius: 4px; }
-
+    [data-testid="stDataFrame"] {
+        border-radius: 14px;
+        overflow: hidden;
+    }
     [data-testid="stDataFrame"] thead th {
-        background: #F5F6FA !important; font-size: 11px !important;
-        font-weight: 600 !important; color: #999 !important;
-        text-transform: uppercase !important; letter-spacing: 0.5px !important;
+        background: #F5F7FA !important;
+        color: #7E8898 !important;
+        font-size: 12px !important;
+        font-weight: 800 !important;
     }
-    [data-testid="stDataFrame"] tbody td {
-        font-size: 13px !important; color: #1A1A2E !important;
+    div[data-testid="stTextInput"] input {
+        background: white !important;
+        color: #172033 !important;
+        border: 1px solid var(--line) !important;
+        border-radius: 12px !important;
+        pointer-events: auto !important;
+        user-select: text !important;
+    }
+    div[data-testid="stTextInput"],
+    div[data-testid="stTextInput"] * {
+        pointer-events: auto !important;
+    }
+    div[data-testid="stTextArea"] textarea {
+        background: white !important;
+        color: #172033 !important;
+        border: 1px solid var(--line) !important;
+        border-radius: 12px !important;
+        pointer-events: auto !important;
+        user-select: text !important;
+        -webkit-user-select: text !important;
+        cursor: text !important;
+    }
+    div[data-testid="stTextArea"],
+    div[data-testid="stTextArea"] * {
+        pointer-events: auto !important;
+    }
+    .connect-card {
+        background: white;
+        border-radius: 16px;
+        padding: 20px 24px;
+        border: 1px solid var(--line);
+        box-shadow: 0 10px 30px rgba(31,59,96,0.06);
+        margin-bottom: 16px;
+    }
+    .connect-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--ink);
+        margin-bottom: 5px;
+    }
+    .connect-sub {
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 16px;
+    }
+
+    @media (max-width: 900px) {
+        .block-container {
+            padding: 12px !important;
+        }
+        .dashboard-shell {
+            border-radius: 18px;
+        }
+        .top-nav {
+            height: auto;
+            padding: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .brand, .nav-actions {
+            min-width: auto;
+        }
+        .nav-links {
+            order: 3;
+            width: 100%;
+            justify-content: flex-start;
+            overflow-x: auto;
+        }
+        .content-surface {
+            padding: 22px 16px 28px 16px;
+        }
     }
 </style>
 """, unsafe_allow_html=True)
 
-if "page" not in st.session_state:
-    st.session_state.page = "home"
+nav_links = "".join(
+    f'<a class="{("active" if key == current else "")}" href="?page={key}" target="_self">{page["short"]}</a>'
+    for key, page in pages.items()
+)
 
-pages = {
-    "home":     {"label": "Home",             "icon": "🏠", "desc": "Overview & Data Upload"},
-    "exec":     {"label": "Executive",        "icon": "📊", "desc": "C-Suite Revenue Overview"},
-    "sales":    {"label": "Sales Manager",    "icon": "📈", "desc": "Sales KPIs & Performance"},
-    "trends":   {"label": "Sales Trends",     "icon": "📉", "desc": "Monthly Trends & Growth"},
-    "customer": {"label": "Customer Analyst", "icon": "👥", "desc": "RFM & Customer Behaviour"},
-    "product":  {"label": "Product Manager",  "icon": "📦", "desc": "Product & Country Analysis"},
-}
-
-page_files = {
-    "home":     "pages/home.py",
-    "exec":     "pages/executive.py",
-    "sales":    "pages/kpi.py",
-    "trends":   "pages/sales.py",
-    "customer": "pages/customers.py",
-    "product":  "pages/products.py",
-}
-
-current  = st.session_state.page
-data_lbl = st.session_state.get('data_label', 'Sample Data')
-
-# ── SIDEBAR ───────────────────────────────────────────────────────
-with st.sidebar:
-
-    st.markdown("""
-    <div style="padding:20px 16px 12px 16px;">
-        <div style="display:flex;align-items:center;gap:10px;">
-            <svg viewBox="0 0 36 36" fill="none"
-                 xmlns="http://www.w3.org/2000/svg"
-                 style="width:30px;height:30px;flex-shrink:0;">
-                <rect width="36" height="36" rx="9" fill="#4B7BF5"/>
-                <polygon points="18,9 27,25 9,25" fill="none"
-                         stroke="white" stroke-width="2.2"
-                         stroke-linejoin="round"/>
-                <circle cx="18" cy="25" r="2.5"
-                        fill="white" fill-opacity="0.65"/>
-            </svg>
-            <div>
-                <div style="font-size:14px;font-weight:900;
-                            color:white;letter-spacing:2px;">LUMIQ</div>
-                <div style="font-size:8px;color:rgba(255,255,255,0.35);
-                            letter-spacing:1px;text-transform:uppercase;">
-                    Retail Intelligence
-                </div>
+st.markdown(f"""
+<div class="dashboard-shell">
+    <div class="top-nav">
+        <a class="brand" href="?page=home" target="_self" style="text-decoration:none;color:white;">
+            <div class="brand-mark">
+                <svg viewBox="0 0 36 36" fill="none" width="24" height="24"
+                     xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="18,5 31,29 5,29" fill="none"
+                             stroke="#78C6D6" stroke-width="2.2"
+                             stroke-linejoin="round"/>
+                    <path d="M18 5 L13 29" stroke="#C63D73" stroke-width="1.4"/>
+                    <path d="M18 5 L24 29" stroke="#E6E95E" stroke-width="1.4"/>
+                </svg>
             </div>
+            <div class="brand-name">LUMIQ</div>
+        </a>
+        <div class="nav-links">{nav_links}</div>
+        <div class="nav-actions">
+            <a href="?page=home" target="_self" title="Open data upload">≡</a>
+            <a href="?page=exec" target="_self" title="Open executive dashboard">□</a>
+            <a href="?page=trends" target="_self" title="Open forecasting view">⌁</a>
+            <div class="avatar">AJ</div>
         </div>
     </div>
-    <div style="height:1px;background:rgba(255,255,255,0.08);
-                margin:0 16px 16px 16px;"></div>
-    <div style="font-size:9px;font-weight:700;
-                color:rgba(255,255,255,0.3);
-                text-transform:uppercase;letter-spacing:1.5px;
-                padding:0 16px;margin-bottom:6px;">Navigation</div>
-    """, unsafe_allow_html=True)
+    <div class="content-surface">
+""", unsafe_allow_html=True)
 
-    for key, p in pages.items():
-        is_active = current == key
-        if is_active:
-            st.markdown(f"""
-            <div style="display:flex;align-items:center;gap:10px;
-                        background:rgba(75,123,245,0.18);
-                        border-left:3px solid #4B7BF5;
-                        border-radius:8px;
-                        padding:10px 12px;margin:1px 8px;">
-                <span style="font-size:16px;">{p['icon']}</span>
-                <div>
-                    <div style="font-size:13px;font-weight:700;
-                                color:white;">{p['label']}</div>
-                    <div style="font-size:10px;
-                                color:rgba(255,255,255,0.4);
-                                margin-top:1px;">{p['desc']}</div>
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            if st.button(
-                f"{p['icon']}  {p['label']}",
-                key=f"nav_{key}",
-                help=p['desc'],
-                use_container_width=True
-            ):
-                st.session_state.page = key
-                st.rerun()
+exec(open(page_files[current], encoding="utf-8").read())
 
-    st.markdown("""
-    <div style="height:1px;background:rgba(255,255,255,0.08);
-                margin:16px 16px;"></div>
-    <div style="padding:0 16px;margin-bottom:12px;">
-        <div style="font-size:9px;font-weight:700;
-                    color:rgba(255,255,255,0.3);
-                    text-transform:uppercase;letter-spacing:1.5px;
-                    margin-bottom:8px;">Active Dataset</div>
-        <div style="display:flex;align-items:center;gap:8px;">
-            <div style="width:6px;height:6px;background:#2ECC71;
-                        border-radius:50%;flex-shrink:0;"></div>
-            <div style="font-size:12px;color:rgba(255,255,255,0.6);">
-                Sample Data
-            </div>
-        </div>
+st.markdown("""
     </div>
-    <div style="height:1px;background:rgba(255,255,255,0.08);
-                margin:0 16px 16px 16px;"></div>
-    <div style="padding:0 16px;">
-        <div style="font-size:9px;font-weight:700;
-                    color:rgba(255,255,255,0.3);
-                    text-transform:uppercase;letter-spacing:1.5px;
-                    margin-bottom:12px;">Project Info</div>
-        <div style="margin-bottom:8px;">
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);
-                        margin-bottom:2px;">Student</div>
-            <div style="font-size:12px;font-weight:600;
-                        color:rgba(255,255,255,0.75);">
-                Ayesha Jahangir
-            </div>
-        </div>
-        <div style="margin-bottom:8px;">
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);
-                        margin-bottom:2px;">Student ID</div>
-            <div style="font-size:12px;font-weight:600;
-                        color:rgba(255,255,255,0.75);">22504895</div>
-        </div>
-        <div style="margin-bottom:8px;">
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);
-                        margin-bottom:2px;">Supervisor</div>
-            <div style="font-size:12px;font-weight:600;
-                        color:rgba(255,255,255,0.75);">
-                Syeda Faiza Nasim
-            </div>
-        </div>
-        <div style="margin-bottom:8px;">
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);
-                        margin-bottom:2px;">Module</div>
-            <div style="font-size:12px;font-weight:600;
-                        color:rgba(255,255,255,0.75);">
-                COM6001 FYP
-            </div>
-        </div>
-        <div style="margin-bottom:8px;">
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);
-                        margin-bottom:2px;">University</div>
-            <div style="font-size:12px;font-weight:600;
-                        color:rgba(255,255,255,0.75);">
-                BNU 2025–26
-            </div>
-        </div>
-        <div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);
-                        margin-bottom:2px;">Dataset</div>
-            <div style="font-size:12px;font-weight:600;
-                        color:rgba(255,255,255,0.75);">
-                UCI Online Retail
-            </div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);
-                        margin-top:1px;">541,909 transactions</div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-
-# ── TOP BAR ───────────────────────────────────────────────────────
-t1, t2, t3 = st.columns([2, 4, 2])
-
-with t1:
-    st.markdown("""
-    <div style="background:white;border-bottom:1px solid #EBEBEB;
-                height:56px;padding:0 20px;display:flex;
-                align-items:center;">
-        <div style="font-size:14px;font-weight:900;color:#1A1A2E;
-                    letter-spacing:2px;">LUMIQ</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-with t2:
-    st.markdown("""
-    <div style="background:white;border-bottom:1px solid #EBEBEB;
-                height:56px;display:flex;align-items:center;">
-    </div>
-    """, unsafe_allow_html=True)
-
-    nav_labels = [p["label"] for p in pages.values()]
-    nav_keys   = list(pages.keys())
-    curr_idx   = nav_keys.index(current) if current in nav_keys else 0
-
-    selected = st.radio(
-        "", nav_labels, index=curr_idx,
-        horizontal=True,
-        label_visibility="collapsed"
-    )
-    new_key = nav_keys[nav_labels.index(selected)]
-    if new_key != st.session_state.page:
-        st.session_state.page = new_key
-        st.rerun()
-
-with t3:
-    st.markdown(f"""
-    <div style="background:white;border-bottom:1px solid #EBEBEB;
-                height:56px;padding:0 20px;display:flex;
-                align-items:center;justify-content:flex-end;gap:10px;">
-        <div style="width:8px;height:8px;background:#2ECC71;
-                    border-radius:50%;"></div>
-        <div style="font-size:11px;color:#AAAAAA;
-                    white-space:nowrap;">{data_lbl[:16]}</div>
-        <div style="width:1px;height:16px;background:#EBEBEB;"></div>
-        <div style="width:30px;height:30px;
-                    background:linear-gradient(135deg,#4B7BF5,#2E4BCC);
-                    border-radius:50%;display:flex;align-items:center;
-                    justify-content:center;font-size:11px;
-                    font-weight:700;color:white;">AJ</div>
-    </div>
-    """, unsafe_allow_html=True)
-
-# ── CONTENT ───────────────────────────────────────────────────────
-st.markdown('<div style="padding:28px 48px 48px 48px;">',
-            unsafe_allow_html=True)
-
-exec(open(page_files[current], encoding='utf-8').read())
-
-st.markdown('</div>', unsafe_allow_html=True)
+</div>
+""", unsafe_allow_html=True)
