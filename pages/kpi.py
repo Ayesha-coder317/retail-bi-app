@@ -7,7 +7,7 @@ import pandas as pd
 
 st.markdown('<div class="section-title">Sales Performance</div>',
             unsafe_allow_html=True)
-st.markdown("#### Revenue, Orders and Growth Analysis")
+st.markdown("##### Revenue, Orders and Growth Analysis")
 st.markdown("---")
 
 with st.spinner("Loading data..."):
@@ -41,12 +41,13 @@ st.markdown("---")
 
 col1, col2 = st.columns([2, 1])
 with col1:
-    st.markdown("### Revenue by Country - Top 10")
+    st.markdown("### Revenue by Country — Top 10")
     country_rev = (df.groupby('Country')['Revenue']
                    .sum().sort_values(ascending=False)
                    .head(10).reset_index())
     fig = go.Figure(go.Bar(
-        x=country_rev['Revenue'], y=country_rev['Country'],
+        x=country_rev['Revenue'],
+        y=country_rev['Country'],
         orientation='h',
         marker=dict(color=country_rev['Revenue'],
                     colorscale='Blues', showscale=False),
@@ -54,7 +55,8 @@ with col1:
         textposition='outside'))
     fig.update_layout(
         height=380, plot_bgcolor='white', paper_bgcolor='white',
-        xaxis=dict(showgrid=True, gridcolor='#f0f0f0', title='Revenue (£)'),
+        xaxis=dict(showgrid=True, gridcolor='#f0f0f0',
+                   title='Revenue (£)'),
         yaxis=dict(autorange='reversed'),
         margin=dict(l=0, r=80, t=10, b=0))
     st.plotly_chart(fig, use_container_width=True)
@@ -67,11 +69,13 @@ with col2:
     others = total_revenue - top5['Revenue'].sum()
     top5.loc[len(top5)] = ['Others', others]
     fig2 = go.Figure(go.Pie(
-        labels=top5['Country'], values=top5['Revenue'],
-        hole=0.4, textinfo='label+percent',
+        labels=top5['Country'],
+        values=top5['Revenue'],
+        hole=0.45,
+        textinfo='label+percent',
         marker=dict(colors=[
-            '#0D1B2A','#1B3A5C','#2E5F8A',
-            '#4A90D9','#7FB3E8','#BDD7EE'
+            '#0A0F1E', '#D4AF37', '#2E86AB',
+            '#E84855', '#3BB273', '#AAAAAA'
         ])))
     fig2.update_layout(
         height=380, showlegend=False,
@@ -92,13 +96,15 @@ with col3:
         dow['InvoiceDate'], categories=day_order, ordered=True)
     dow = dow.sort_values('InvoiceDate')
     fig3 = go.Figure(go.Bar(
-        x=dow['InvoiceDate'], y=dow['Revenue'],
-        marker_color='#4A90D9',
+        x=dow['InvoiceDate'],
+        y=dow['Revenue'],
+        marker_color='#D4AF37',
         text=[f"£{v:,.0f}" for v in dow['Revenue']],
         textposition='outside'))
     fig3.update_layout(
         height=300, plot_bgcolor='white', paper_bgcolor='white',
-        yaxis=dict(showgrid=True, gridcolor='#f0f0f0', title='Revenue (£)'),
+        yaxis=dict(showgrid=True, gridcolor='#f0f0f0',
+                   title='Revenue (£)'),
         margin=dict(l=0, r=0, t=10, b=0))
     st.plotly_chart(fig3, use_container_width=True)
 
@@ -108,8 +114,10 @@ with col4:
              .sum().sort_values(ascending=False)
              .head(10).reset_index())
     fig4 = go.Figure(go.Bar(
-        x=top_p['Revenue'], y=top_p['Description'],
-        orientation='h', marker_color='#0D1B2A',
+        x=top_p['Revenue'],
+        y=top_p['Description'],
+        orientation='h',
+        marker_color='#0A0F1E',
         text=[f"£{v:,.0f}" for v in top_p['Revenue']],
         textposition='outside'))
     fig4.update_layout(
@@ -127,12 +135,13 @@ fig5 = go.Figure()
 fig5.add_trace(go.Scatter(
     x=monthly['MonthStr'], y=monthly['Revenue'],
     fill='tozeroy', mode='lines+markers',
-    line=dict(color='#4A90D9', width=2),
-    fillcolor='rgba(74,144,217,0.1)',
-    marker=dict(size=6, color='#0D1B2A')))
+    line=dict(color='#2E86AB', width=2),
+    fillcolor='rgba(46,134,171,0.1)',
+    marker=dict(size=6, color='#D4AF37')))
 fig5.update_layout(
     height=280, plot_bgcolor='white', paper_bgcolor='white',
     xaxis=dict(showgrid=False),
-    yaxis=dict(showgrid=True, gridcolor='#f0f0f0', title='Revenue (£)'),
+    yaxis=dict(showgrid=True, gridcolor='#f0f0f0',
+               title='Revenue (£)'),
     margin=dict(l=0, r=0, t=10, b=0))
 st.plotly_chart(fig5, use_container_width=True)

@@ -7,7 +7,7 @@ import plotly.express as px
 
 st.markdown('<div class="section-title">Customer Insights</div>',
             unsafe_allow_html=True)
-st.markdown("#### RFM Segmentation and Customer Behaviour Analysis")
+st.markdown("##### RFM Segmentation and Customer Behaviour Analysis")
 st.markdown("---")
 
 with st.spinner("Loading data..."):
@@ -39,11 +39,11 @@ c8.metric("Total Segments",     "5")
 st.markdown("---")
 
 colors = {
-    'Champions':           '#0D1B2A',
-    'Loyal Customers':     '#4A90D9',
-    'Potential Loyalists': '#7FB3E8',
-    'At Risk':             '#e67e22',
-    'Lost':                '#e74c3c'
+    'Champions':           '#0A0F1E',
+    'Loyal Customers':     '#D4AF37',
+    'Potential Loyalists': '#2E86AB',
+    'At Risk':             '#E84855',
+    'Lost':                '#AAAAAA'
 }
 
 col1, col2 = st.columns([1, 1])
@@ -72,13 +72,16 @@ with col2:
         Avg_Revenue =('Monetary',  'mean')
     ).reset_index().round(1)
     seg_summary.columns = ['Segment','Customers',
-                            'Avg Recency','Avg Orders','Avg Revenue (£)']
-    st.dataframe(seg_summary, use_container_width=True, hide_index=True)
+                            'Avg Recency','Avg Orders',
+                            'Avg Revenue (£)']
+    st.dataframe(seg_summary, use_container_width=True,
+                 hide_index=True)
 
     st.markdown("### Revenue by Segment")
     seg_rev = rfm.groupby('Segment')['Monetary'].sum().reset_index()
     fig2 = go.Figure(go.Bar(
-        x=seg_rev['Monetary'], y=seg_rev['Segment'],
+        x=seg_rev['Monetary'],
+        y=seg_rev['Segment'],
         orientation='h',
         marker=dict(color=[colors.get(s,'#999')
                            for s in seg_rev['Segment']]),
@@ -100,7 +103,8 @@ with col3:
         rfm, x='Recency', y='Monetary',
         color='Segment', size='Frequency',
         color_discrete_map=colors,
-        labels={'Recency':'Recency (days)', 'Monetary':'Revenue (£)'})
+        labels={'Recency':'Recency (days)',
+                'Monetary':'Revenue (£)'})
     fig3.update_layout(
         height=320, plot_bgcolor='white', paper_bgcolor='white',
         xaxis=dict(showgrid=True, gridcolor='#f0f0f0'),
@@ -112,7 +116,7 @@ with col4:
     st.markdown("### Frequency Distribution")
     fig4 = go.Figure(go.Histogram(
         x=rfm['Frequency'], nbinsx=20,
-        marker_color='#4A90D9', opacity=0.8))
+        marker_color='#2E86AB', opacity=0.85))
     fig4.update_layout(
         height=320, plot_bgcolor='white', paper_bgcolor='white',
         xaxis=dict(title='Number of Orders', showgrid=False),

@@ -46,8 +46,7 @@ def clean_data(df):
     df = df[df['Quantity']  > 0]
     df = df[df['UnitPrice'] > 0]
     df = df.dropna(subset=['Quantity', 'UnitPrice'])
-    df['InvoiceDate'] = pd.to_datetime(
-        df['InvoiceDate'], infer_datetime_format=True, errors='coerce')
+    df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'], errors='coerce')
     df = df.dropna(subset=['InvoiceDate'])
     df['Revenue']  = df['Quantity'] * df['UnitPrice']
     df['Month']    = df['InvoiceDate'].dt.to_period('M')

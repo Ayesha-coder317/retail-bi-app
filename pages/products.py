@@ -7,7 +7,7 @@ import plotly.express as px
 
 st.markdown('<div class="section-title">Product & Country Analysis</div>',
             unsafe_allow_html=True)
-st.markdown("#### Product Performance and Geographic Distribution")
+st.markdown("##### Product Performance and Geographic Distribution")
 st.markdown("---")
 
 with st.spinner("Loading data..."):
@@ -75,7 +75,7 @@ with tab1:
             y=top_qty['Description'],
             x=top_qty['Quantity'],
             orientation='h',
-            marker_color='#0D1B2A',
+            marker_color='#0A0F1E',
             text=top_qty['Quantity'],
             textposition='outside'))
         fig2.update_layout(
@@ -89,7 +89,7 @@ with tab1:
     st.markdown("---")
     col3, col4 = st.columns(2)
     with col3:
-        st.markdown("### Revenue vs Quantity - Top 10")
+        st.markdown("### Revenue vs Quantity — Top 10")
         top10 = (df.groupby('Description')
                  .agg(Revenue =('Revenue','sum'),
                       Quantity=('Quantity','sum'))
@@ -99,10 +99,10 @@ with tab1:
         fig3 = go.Figure()
         fig3.add_trace(go.Bar(
             name='Revenue (£)', x=top10['Description'],
-            y=top10['Revenue'], marker_color='#4A90D9'))
+            y=top10['Revenue'], marker_color='#2E86AB'))
         fig3.add_trace(go.Bar(
             name='Quantity', x=top10['Description'],
-            y=top10['Quantity'], marker_color='#0D1B2A'))
+            y=top10['Quantity'], marker_color='#0A0F1E'))
         fig3.update_layout(
             barmode='group', height=320,
             plot_bgcolor='white', paper_bgcolor='white',
@@ -118,7 +118,7 @@ with tab1:
                        .sum().reset_index())
         fig4 = go.Figure(go.Histogram(
             x=product_rev['Revenue'], nbinsx=30,
-            marker_color='#4A90D9', opacity=0.8))
+            marker_color='#2E86AB', opacity=0.85))
         fig4.update_layout(
             height=320, plot_bgcolor='white', paper_bgcolor='white',
             xaxis=dict(title='Revenue (£)', showgrid=False),
@@ -167,10 +167,10 @@ with tab2:
         fig6 = go.Figure()
         fig6.add_trace(go.Bar(
             name='Revenue (£)', x=top10c['Country'],
-            y=top10c['Revenue'], marker_color='#4A90D9'))
+            y=top10c['Revenue'], marker_color='#2E86AB'))
         fig6.add_trace(go.Bar(
             name='Orders', x=top10c['Country'],
-            y=top10c['Orders'], marker_color='#0D1B2A'))
+            y=top10c['Orders'], marker_color='#0A0F1E'))
         fig6.update_layout(
             barmode='group', height=320,
             plot_bgcolor='white', paper_bgcolor='white',
@@ -185,7 +185,8 @@ with tab2:
         fig7 = go.Figure(go.Bar(
             x=country_rev.head(10)['Customers'],
             y=country_rev.head(10)['Country'],
-            orientation='h', marker_color='#9b59b6',
+            orientation='h',
+            marker_color='#D4AF37',
             text=country_rev.head(10)['Customers'],
             textposition='outside'))
         fig7.update_layout(

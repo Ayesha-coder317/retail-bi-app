@@ -7,7 +7,7 @@ import pandas as pd
 
 st.markdown('<div class="section-title">Sales Trends</div>',
             unsafe_allow_html=True)
-st.markdown("#### Monthly Revenue, Growth Rate and Day Analysis")
+st.markdown("##### Monthly Revenue, Growth Rate and Day Analysis")
 st.markdown("---")
 
 with st.spinner("Loading data..."):
@@ -31,8 +31,8 @@ st.markdown("---")
 st.markdown("### Monthly Revenue")
 monthly = (filtered.groupby(
     filtered['InvoiceDate'].dt.to_period('M'))
-    .agg(Revenue=('Revenue','sum'),
-         Orders=('InvoiceNo','nunique'))
+    .agg(Revenue=('Revenue', 'sum'),
+         Orders =('InvoiceNo','nunique'))
     .reset_index())
 monthly['Month']      = monthly['InvoiceDate'].dt.strftime('%b %Y')
 monthly['GrowthRate'] = monthly['Revenue'].pct_change() * 100
@@ -40,31 +40,34 @@ monthly['GrowthRate'] = monthly['Revenue'].pct_change() * 100
 fig = go.Figure()
 fig.add_trace(go.Bar(
     x=monthly['Month'], y=monthly['Revenue'],
-    name='Revenue', marker_color='#4A90D9', opacity=0.85))
+    name='Revenue', marker_color='#2E86AB', opacity=0.85))
 fig.add_trace(go.Scatter(
     x=monthly['Month'], y=monthly['Revenue'],
     mode='lines+markers', name='Trend',
-    line=dict(color='#0D1B2A', width=2),
-    marker=dict(size=5)))
+    line=dict(color='#D4AF37', width=2),
+    marker=dict(size=5, color='#D4AF37')))
 fig.update_layout(
     height=380, plot_bgcolor='white', paper_bgcolor='white',
     xaxis=dict(showgrid=False),
-    yaxis=dict(showgrid=True, gridcolor='#f0f0f0', title='Revenue (£)'),
+    yaxis=dict(showgrid=True, gridcolor='#f0f0f0',
+               title='Revenue (£)'),
     legend=dict(orientation='h', yanchor='bottom', y=1.02),
     margin=dict(l=0, r=0, t=30, b=0))
 st.plotly_chart(fig, use_container_width=True)
 
 st.markdown("### Month-on-Month Growth Rate (%)")
 fig2 = go.Figure(go.Bar(
-    x=monthly['Month'], y=monthly['GrowthRate'],
-    marker_color=['#2ecc71' if v >= 0 else '#e74c3c'
+    x=monthly['Month'],
+    y=monthly['GrowthRate'],
+    marker_color=['#3BB273' if v >= 0 else '#E84855'
                   for v in monthly['GrowthRate'].fillna(0)],
     text=[f"{v:.1f}%" for v in monthly['GrowthRate'].fillna(0)],
     textposition='outside'))
 fig2.update_layout(
     height=300, plot_bgcolor='white', paper_bgcolor='white',
     xaxis=dict(showgrid=False),
-    yaxis=dict(showgrid=True, gridcolor='#f0f0f0', title='Growth Rate (%)'),
+    yaxis=dict(showgrid=True, gridcolor='#f0f0f0',
+               title='Growth Rate (%)'),
     margin=dict(l=0, r=0, t=10, b=0))
 st.plotly_chart(fig2, use_container_width=True)
 
@@ -78,10 +81,12 @@ dow['InvoiceDate'] = pd.Categorical(
     dow['InvoiceDate'], categories=day_order, ordered=True)
 dow = dow.sort_values('InvoiceDate')
 fig3 = go.Figure(go.Bar(
-    x=dow['InvoiceDate'], y=dow['Revenue'],
-    marker_color='#e67e22'))
+    x=dow['InvoiceDate'],
+    y=dow['Revenue'],
+    marker_color='#D4AF37'))
 fig3.update_layout(
     height=300, plot_bgcolor='white', paper_bgcolor='white',
-    yaxis=dict(showgrid=True, gridcolor='#f0f0f0', title='Revenue (£)'),
+    yaxis=dict(showgrid=True, gridcolor='#f0f0f0',
+               title='Revenue (£)'),
     margin=dict(l=0, r=0, t=10, b=0))
 st.plotly_chart(fig3, use_container_width=True)
