@@ -59,7 +59,7 @@ with col1:
         xaxis=dict(showgrid=False),
         yaxis=dict(showgrid=True, gridcolor='#f0f0f0', title='Revenue (£)'),
         legend=dict(orientation='h', yanchor='bottom', y=1.02),
-        margin=dict(l=0, r=0, t=10, b=0))
+        margin=dict(l=0, r=0, t=64, b=0))
     st.plotly_chart(fig, use_container_width=True)
 
 with col2:
@@ -79,7 +79,7 @@ with col2:
         height=300, plot_bgcolor='white', paper_bgcolor='white',
         xaxis=dict(showgrid=False),
         yaxis=dict(autorange='reversed'),
-        margin=dict(l=0, r=80, t=10, b=0))
+        margin=dict(l=0, r=80, t=64, b=0))
     st.plotly_chart(fig2, use_container_width=True)
 
 st.markdown("---")
@@ -107,7 +107,7 @@ with col3:
                    gridcolor='#f0f0f0'),
         yaxis2=dict(title='Orders', overlaying='y', side='right'),
         legend=dict(orientation='h', yanchor='bottom', y=1.02),
-        margin=dict(l=0, r=60, t=10, b=0))
+        margin=dict(l=0, r=60, t=64, b=0))
     st.plotly_chart(fig3, use_container_width=True)
 
 with col4:
@@ -124,7 +124,7 @@ with col4:
         xaxis=dict(showgrid=False),
         yaxis=dict(showgrid=True, gridcolor='#f0f0f0',
                    title='Growth (%)'),
-        margin=dict(l=0, r=0, t=10, b=0))
+        margin=dict(l=0, r=0, t=64, b=0))
     st.plotly_chart(fig4, use_container_width=True)
 
 st.markdown("---")
@@ -138,5 +138,5 @@ fig5 = px.choropleth(
 fig5.update_layout(
     height=400, paper_bgcolor='white',
     geo=dict(showframe=False, showcoastlines=True),
-    margin=dict(l=0, r=0, t=10, b=0))
+    margin=dict(l=0, r=0, t=64, b=0))
 st.plotly_chart(fig5, use_container_width=True)

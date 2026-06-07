@@ -128,7 +128,7 @@ fig.update_layout(
     font=dict(color='#182232'),
     xaxis=dict(showgrid=True, gridcolor='#E5EDF2', title='Revenue (£)'),
     yaxis=dict(autorange='reversed'),
-    margin=dict(l=0, r=80, t=20, b=20)
+    margin=dict(l=0, r=80, t=64, b=20)
 )
 st.plotly_chart(fig, width='stretch')
 
@@ -199,7 +199,7 @@ fig2.update_layout(
     font=dict(color='#182232'),
     xaxis=dict(showgrid=False),
     yaxis=dict(showgrid=True, gridcolor='#E5EDF2', title='Revenue (£)'),
-    margin=dict(l=0, r=0, t=10, b=10)
+    margin=dict(l=0, r=0, t=64, b=10)
 )
 st.plotly_chart(fig2, width='stretch')
 

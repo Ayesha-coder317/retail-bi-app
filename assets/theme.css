@@ -263,12 +263,19 @@ div[data-testid="stMetricValue"] {
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 18px;
-    padding: clamp(0.7rem, 1.2vw, 1rem);
+    padding: clamp(1.15rem, 1.5vw, 1.45rem) clamp(0.85rem, 1.2vw, 1rem) clamp(0.8rem, 1.1vw, 1rem);
     box-shadow: var(--soft-shadow);
 }
 
 [data-testid="stPlotlyChart"] {
     margin-bottom: 0.8rem;
+    overflow: visible;
+}
+
+[data-testid="stPlotlyChart"] .js-plotly-plot,
+[data-testid="stPlotlyChart"] .plot-container,
+[data-testid="stPlotlyChart"] .svg-container {
+    overflow: visible !important;
 }
 
 [data-testid="stDataFrame"] {

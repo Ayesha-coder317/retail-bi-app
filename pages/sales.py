@@ -56,7 +56,7 @@ fig.update_layout(
     xaxis=dict(showgrid=False),
     yaxis=dict(showgrid=True, gridcolor='#E5EDF2', title='Revenue (£)'),
     legend=dict(orientation='h', yanchor='bottom', y=1.02),
-    margin=dict(l=0, r=0, t=30, b=0)
+    margin=dict(l=0, r=0, t=64, b=0)
 )
 with momentum_col1:
     st.plotly_chart(fig, width='stretch')
@@ -73,7 +73,7 @@ fig2.update_layout(
     font=dict(color='#182232'),
     xaxis=dict(showgrid=False),
     yaxis=dict(showgrid=True, gridcolor='#E5EDF2', title='Growth Rate (%)'),
-    margin=dict(l=0, r=0, t=10, b=0)
+    margin=dict(l=0, r=0, t=64, b=0)
 )
 with momentum_col2:
     st.plotly_chart(fig2, width='stretch')
@@ -106,7 +106,7 @@ fig3.update_layout(
     height=300, title='Monthly Orders',
     plot_bgcolor='white', paper_bgcolor='white',
     font=dict(color='#182232'),
-    yaxis=dict(title='Orders'), margin=dict(l=0,r=0,t=40,b=0)
+    yaxis=dict(title='Orders'), margin=dict(l=0,r=0,t=64,b=0)
 )
 with quality_col2:
     st.plotly_chart(fig3, width='stretch')
@@ -125,7 +125,7 @@ fig4.update_layout(
     height=380, title='Revenue by Day of Week',
     plot_bgcolor='white', paper_bgcolor='white',
     font=dict(color='#182232'),
-    yaxis=dict(title='Revenue (£)'), margin=dict(l=0,r=0,t=40,b=0)
+    yaxis=dict(title='Revenue (£)'), margin=dict(l=0,r=0,t=64,b=0)
 )
 with timing_col1:
     st.plotly_chart(fig4, width='stretch')

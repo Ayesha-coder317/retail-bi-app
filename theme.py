@@ -23,11 +23,20 @@ COLORS = {
 TEAL_NAVY_SCALE = [[0, COLORS["teal"]], [1, COLORS["navy"]]]
 
 
-def apply_plotly_theme(fig, height=None, top_margin=10):
+def apply_plotly_theme(fig, height=None, top_margin=56):
+    top_margin = max(top_margin, 56)
     layout = {
         "plot_bgcolor": COLORS["card"],
         "paper_bgcolor": COLORS["card"],
         "font": {"color": COLORS["text"]},
+        "title": {
+            "font": {"color": COLORS["text"], "size": 16},
+            "x": 0,
+            "xanchor": "left",
+            "y": 0.96,
+            "yanchor": "top",
+            "pad": {"t": 12, "b": 18},
+        },
         "margin": {"l": 0, "r": 0, "t": top_margin, "b": 0},
     }
     if height:

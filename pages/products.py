@@ -34,7 +34,7 @@ with tab1:
         font=dict(color='#182232'),
         xaxis=dict(showgrid=True, gridcolor='#E5EDF2', title='Revenue (£)'),
         yaxis=dict(autorange='reversed'),
-        margin=dict(l=0, r=80, t=10, b=0)
+        margin=dict(l=0, r=80, t=64, b=0)
     )
     st.plotly_chart(fig, width='stretch')
 
@@ -52,7 +52,7 @@ with tab1:
         font=dict(color='#182232'),
         xaxis=dict(tickangle=-30),
         yaxis=dict(showgrid=True, gridcolor='#E5EDF2', title='Units Sold'),
-        margin=dict(l=0, r=0, t=10, b=80)
+        margin=dict(l=0, r=0, t=64, b=80)
     )
     st.plotly_chart(fig2, width='stretch')
 
@@ -152,7 +152,7 @@ with tab2:
             paper_bgcolor='white',
             font=dict(color='#182232'),
             geo=dict(showframe=False, showcoastlines=True),
-            margin=dict(l=0, r=0, t=40, b=0)
+            margin=dict(l=0, r=0, t=64, b=0)
         )
         st.plotly_chart(fig3, width='stretch')
 
@@ -176,7 +176,7 @@ with tab2:
         xaxis=dict(tickangle=-20),
         yaxis=dict(showgrid=True, gridcolor='#E5EDF2'),
         legend=dict(orientation='h', yanchor='bottom', y=1.02),
-        margin=dict(l=0, r=0, t=30, b=0)
+        margin=dict(l=0, r=0, t=64, b=0)
     )
     st.plotly_chart(fig4, width='stretch')
 

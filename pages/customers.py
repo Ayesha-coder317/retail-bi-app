@@ -37,7 +37,7 @@ with col1:
         height=320, showlegend=False,
         paper_bgcolor='white',
         font=dict(color='#182232'),
-        margin=dict(l=0, r=0, t=20, b=0)
+        margin=dict(l=0, r=0, t=64, b=0)
     )
     st.plotly_chart(fig, width='stretch')
 
@@ -118,7 +118,7 @@ fig2.update_layout(
     font=dict(color='#182232'),
     xaxis=dict(showgrid=True, gridcolor='#E5EDF2'),
     yaxis=dict(showgrid=True, gridcolor='#E5EDF2'),
-    margin=dict(l=0, r=0, t=10, b=0)
+    margin=dict(l=0, r=0, t=64, b=0)
 )
 with value_map_col1:
     st.plotly_chart(fig2, width='stretch')
