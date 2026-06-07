@@ -1,257 +1,170 @@
 import streamlit as st
 import sys
 sys.path.append('.')
-from data_loader import load_from_csv, load_from_excel, get_data
+from data_loader import clean_data, load_data
 import plotly.graph_objects as go
-import plotly.express as px
+from theme import COLORS, TEAL_NAVY_SCALE, apply_plotly_theme
+import pandas as pd
 
-st.markdown("""
-<div style="background:linear-gradient(160deg,#EEF2FF,#F5F0FF,#FFF5F0);
-            border-radius:18px;padding:34px 36px;margin:0 0 24px 0;
-            border:1px solid rgba(255,255,255,0.72);
-            box-shadow:0 14px 38px rgba(31,59,96,0.06);
-            text-align:center;">
-    <div style="font-size:11px;font-weight:700;color:#4B7BF5;
-                letter-spacing:4px;text-transform:uppercase;
-                margin-bottom:16px;">
-        COM6001 Final Year Project - BNU 2025-26
-    </div>
-    <div style="font-size:44px;font-weight:900;color:#1A1A6E;
-                line-height:1.1;margin-bottom:12px;">LUMIQ</div>
-    <div style="font-size:18px;color:#555;margin-bottom:16px;">
-        Retail Business Intelligence Platform
-    </div>
-    <div style="font-size:14px;color:#666;max-width:520px;
-                margin:0 auto 22px auto;line-height:1.7;">
-        Transform raw transactional data into strategic intelligence.
-        Role-based dashboards powered by RFM segmentation
-        and real-time data upload.
-    </div>
-    <div style="display:flex;justify-content:center;
-                gap:10px;flex-wrap:wrap;margin-bottom:28px;">
-        <span style="background:white;border:1px solid #E0E0E0;
-                     border-radius:20px;padding:6px 16px;
-                     font-size:12px;font-weight:500;color:#555;">
-            CSV / Excel Upload
-        </span>
-        <span style="background:white;border:1px solid #E0E0E0;
-                     border-radius:20px;padding:6px 16px;
-                     font-size:12px;font-weight:500;color:#555;">
-            REST API
-        </span>
-        <span style="background:white;border:1px solid #E0E0E0;
-                     border-radius:20px;padding:6px 16px;
-                     font-size:12px;font-weight:500;color:#555;">
-            RFM Segmentation
-        </span>
-        <span style="background:white;border:1px solid #E0E0E0;
-                     border-radius:20px;padding:6px 16px;
-                     font-size:12px;font-weight:500;color:#555;">
-            AI Insights
-        </span>
-        <span style="background:white;border:1px solid #E0E0E0;
-                     border-radius:20px;padding:6px 16px;
-                     font-size:12px;font-weight:500;color:#555;">
-            6 Role Views
-        </span>
-    </div>
-    <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
-        <div style="background:white;border-radius:30px;padding:8px 20px;
-                    font-size:13px;font-weight:600;color:#1A1A6E;
-                    box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-            Ayesha Jahangir
-        </div>
-        <div style="background:white;border-radius:30px;padding:8px 20px;
-                    font-size:13px;font-weight:600;color:#1A1A6E;
-                    box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-            ID: 22504895
-        </div>
-        <div style="background:white;border-radius:30px;padding:8px 20px;
-                    font-size:13px;font-weight:600;color:#1A1A6E;
-                    box-shadow:0 2px 12px rgba(0,0,0,0.08);">
-            Supervisor: Syeda Faiza Nasim
-        </div>
-    </div>
-</div>
-""", unsafe_allow_html=True)
 
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Role Views", "6")
-c2.metric("KPIs Tracked", "10+")
-c3.metric("RFM Segments", "5")
-c4.metric("Test Cases", "65")
-
-st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-
-with st.container(border=True):
-    st.markdown("""
-    <div class="connect-title">Connect Your Data</div>
-    <div class="connect-sub">
-        Upload a file or connect a live API. Lumiq auto-detects your columns.
-    </div>
-    """, unsafe_allow_html=True)
-
-    source = st.radio(
-        "",
-        ["Use Sample Data", "Upload CSV / Excel"],
-        horizontal=True,
-        label_visibility="collapsed",
-        key="data_source_radio"
-    )
-
-    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-
-    if source == "Upload CSV / Excel":
-        _loaded = st.session_state.get("uploaded_df")
-        if _loaded is not None:
-            _lbl = st.session_state.get("data_label", "your file")
-            st.success(
-                f"Data loaded: **{_lbl}** — {len(_loaded):,} records active across all pages. "
-                "Upload a new file below to replace it."
-            )
-        uploaded = st.file_uploader("Drop CSV or Excel file here", type=["csv", "xlsx", "xls"])
-        if uploaded:
-            with st.spinner("Processing..."):
-                if uploaded.name.endswith('.csv'):
-                    df, err = load_from_csv(uploaded)
-                else:
-                    df, err = load_from_excel(uploaded)
-            if err:
-                st.error(f"Error: {err}")
-            else:
-                st.session_state.uploaded_df = df
-                st.session_state.data_label = uploaded.name[:20]
-                st.success(f"{len(df):,} clean records loaded from **{uploaded.name}**")
-                c1, c2, c3, c4 = st.columns(4)
-                c1.metric("Records", f"{len(df):,}")
-                c2.metric(
-                    "Date Range",
-                    f"{df['InvoiceDate'].min().strftime('%b %Y')} - "
-                    f"{df['InvoiceDate'].max().strftime('%b %Y')}"
-                )
-                c3.metric("Countries", f"{df['Country'].nunique():,}")
-                c4.metric("Products", f"{df['StockCode'].nunique():,}")
-                with st.expander("Preview data"):
-                    st.dataframe(df.head(5), use_container_width=True)
-
+def load_uploaded_file(uploaded_file):
+    if uploaded_file.name.lower().endswith(".csv"):
+        raw_df = pd.read_csv(uploaded_file)
     else:
-        if 'uploaded_df' in st.session_state:
-            del st.session_state['uploaded_df']
-        st.session_state.data_label = "Sample Data"
-        st.info("UCI Online Retail Dataset - 541,909 transactions, Dec 2010 to Dec 2011")
+        raw_df = pd.read_excel(uploaded_file, engine="openpyxl")
+    return clean_data(raw_df)
 
-st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
-df = get_data()
-label = st.session_state.get('data_label', 'Sample Data')
-
-with st.container(border=True):
-    st.markdown(f"""
-    <div class="connect-title">Active Dataset - {label}</div>
-    <div class="connect-sub">Currently loaded</div>
-    """, unsafe_allow_html=True)
-    c1, c2, c3, c4 = st.columns(4)
-    c1.metric("Records", f"{len(df):,}")
-    c2.metric("Customers", f"{df['CustomerID'].nunique():,}")
-    c3.metric("Countries", f"{df['Country'].nunique():,}")
-    c4.metric("Products", f"{df['StockCode'].nunique():,}")
-
-st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
-
-st.markdown("""
-<div class="connect-title">Auto Retail Insights</div>
-<div class="connect-sub">
-    Lumiq profiles the loaded retail data and creates the most relevant insights and visuals from the columns it finds.
-</div>
-""", unsafe_allow_html=True)
-
-insights = []
-if len(df) and 'Revenue' in df.columns:
-    total_revenue = df['Revenue'].sum()
-    insights.append(f"Total revenue is {total_revenue:,.0f} across {df['InvoiceNo'].nunique():,} orders.")
-    if 'Category' in df.columns:
-        cat_rev = df.groupby('Category')['Revenue'].sum().sort_values(ascending=False)
-        if len(cat_rev):
-            insights.append(f"{cat_rev.index[0]} is the strongest category with {cat_rev.iloc[0]:,.0f} revenue.")
-    if 'Country' in df.columns:
-        market_rev = df.groupby('Country')['Revenue'].sum().sort_values(ascending=False)
-        if len(market_rev):
-            insights.append(f"{market_rev.index[0]} is the leading market/location by revenue.")
-    if 'CustomerID' in df.columns:
-        repeat_rate = (df.groupby('CustomerID')['InvoiceNo'].nunique().gt(1).mean() * 100)
-        insights.append(f"Repeat-purchase rate is {repeat_rate:.1f}% based on detected customer IDs.")
-
-cols = st.columns(min(3, max(1, len(insights))))
-for idx, text in enumerate(insights[:3]):
-    with cols[idx]:
-        st.markdown(f"""
-        <div class="insight-card">
-            <div class="insight-label">Auto Insight</div>
-            <div class="insight-text">{text}</div>
+st.markdown(
+    """
+    <section class="home-hero">
+        <div class="hero-grid">
+            <div>
+                <div class="hero-kicker">Retail Intelligence Platform</div>
+                <h1 class="hero-title">LUMIQ</h1>
+                <p class="hero-copy">
+                    Convert raw retail transactions into executive KPIs, sales trends,
+                    customer segments, product performance, and country-level opportunities
+                    in one clean BI command center.
+                </p>
+                <div class="hero-actions">
+                    <span class="hero-chip">Executive KPIs</span>
+                    <span class="hero-chip">Sales Analysis</span>
+                    <span class="hero-chip">RFM Segments</span>
+                    <span class="hero-chip">CSV/XLSX Upload Supported</span>
+                    <span class="hero-chip">API Integration Coming Soon</span>
+                </div>
+            </div>
+            <div class="upload-card">
+                <div class="eyebrow">Start Analysis</div>
+                <h3>Upload retail data or use sample data</h3>
+                <p>CSV and Excel upload is supported for the current retail transaction format. Broader CSV schema compatibility is in progress.</p>
+            </div>
         </div>
-        """, unsafe_allow_html=True)
+    </section>
+    """,
+    unsafe_allow_html=True,
+)
 
-tab1, tab2, tab3 = st.tabs(["Revenue Trends", "Category / Products", "Market / Customers"])
+upload_col, sample_col = st.columns([2, 1])
+with upload_col:
+    uploaded_file = st.file_uploader("Upload supported CSV or Excel retail data", type=["csv", "xlsx"])
+    st.caption("Supported now: CSV/XLSX files that match Lumiq's retail transaction fields. Broader CSV schema compatibility is in progress. API integration is coming soon.")
+    if uploaded_file:
+        try:
+            uploaded_df = load_uploaded_file(uploaded_file)
+            st.session_state["uploaded_df_clean"] = uploaded_df
+            st.session_state["data_source"] = "uploaded"
+            st.success(f"Uploaded dataset active - {len(uploaded_df):,} clean records ready for analysis")
+        except Exception as exc:
+            st.error(f"Unable to process this file: {exc}")
 
-with tab1:
-    if {'Month', 'Revenue'}.issubset(df.columns):
-        monthly = (df.groupby('Month')['Revenue']
-                   .sum().reset_index().sort_values('Month'))
-        monthly['MonthStr'] = monthly['Month'].dt.strftime('%b %Y')
-        fig = go.Figure(go.Scatter(
-            x=monthly['MonthStr'], y=monthly['Revenue'],
-            mode='lines+markers', fill='tozeroy',
-            line=dict(color='#78C6D6', width=3),
-            fillcolor='rgba(120,198,214,0.14)'
-        ))
-        fig.update_layout(
-            height=320, plot_bgcolor='white', paper_bgcolor='white',
-            xaxis=dict(showgrid=False, tickangle=-30),
-            yaxis=dict(showgrid=True, gridcolor='#EEF3F6'),
-            margin=dict(l=0, r=0, t=10, b=0)
-        )
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        st.info("Add a date and revenue/sales column to generate trend analysis.")
+with sample_col:
+    if st.button("Use sample retail data", width='stretch'):
+        st.session_state.pop("uploaded_df_clean", None)
+        st.session_state["data_source"] = "sample"
+        st.success("Sample retail dataset selected")
 
-with tab2:
-    left, right = st.columns(2)
-    with left:
-        if {'Category', 'Revenue'}.issubset(df.columns):
-            cat = df.groupby('Category')['Revenue'].sum().sort_values(ascending=False).head(10).reset_index()
-            fig = px.bar(cat, x='Revenue', y='Category', orientation='h', color_discrete_sequence=['#C63D73'])
-            fig.update_layout(height=320, plot_bgcolor='white', paper_bgcolor='white',
-                              yaxis=dict(autorange='reversed'), margin=dict(l=0, r=0, t=10, b=0))
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("No category column detected.")
-    with right:
-        if {'Description', 'Revenue'}.issubset(df.columns):
-            prod = df.groupby('Description')['Revenue'].sum().sort_values(ascending=False).head(10).reset_index()
-            fig = px.bar(prod, x='Revenue', y='Description', orientation='h', color_discrete_sequence=['#1F3B60'])
-            fig.update_layout(height=320, plot_bgcolor='white', paper_bgcolor='white',
-                              yaxis=dict(autorange='reversed'), margin=dict(l=0, r=0, t=10, b=0))
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("No product/description column detected.")
 
-with tab3:
-    left, right = st.columns(2)
-    with left:
-        if {'Country', 'Revenue'}.issubset(df.columns):
-            market = df.groupby('Country')['Revenue'].sum().sort_values(ascending=False).head(10).reset_index()
-            fig = px.bar(market, x='Revenue', y='Country', orientation='h', color_discrete_sequence=['#78C6D6'])
-            fig.update_layout(height=320, plot_bgcolor='white', paper_bgcolor='white',
-                              yaxis=dict(autorange='reversed'), margin=dict(l=0, r=0, t=10, b=0))
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("No market/location column detected.")
-    with right:
-        if {'CustomerID', 'Revenue'}.issubset(df.columns):
-            cust = df.groupby('CustomerID')['Revenue'].sum().sort_values(ascending=False).head(10).reset_index()
-            fig = px.bar(cust, x='Revenue', y='CustomerID', orientation='h', color_discrete_sequence=['#2ECC71'])
-            fig.update_layout(height=320, plot_bgcolor='white', paper_bgcolor='white',
-                              yaxis=dict(autorange='reversed'), margin=dict(l=0, r=0, t=10, b=0))
-            st.plotly_chart(fig, use_container_width=True)
-        else:
-            st.info("No customer ID column detected.")
+with st.spinner("Loading dataset..."):
+    df = load_data()
+data_source_label = "Uploaded dataset" if st.session_state.get("data_source") == "uploaded" else "Sample retail dataset"
+
+total_revenue = df['Revenue'].sum()
+total_orders = df['InvoiceNo'].nunique()
+total_customers = df['CustomerID'].nunique()
+total_products = df['StockCode'].nunique()
+date_min = df['InvoiceDate'].min().strftime('%b %Y')
+date_max = df['InvoiceDate'].max().strftime('%b %Y')
+
+st.markdown(
+    f"""
+    <div class="home-stats">
+        <div class="home-stat-card">
+            <div class="home-stat-label">Active Source</div>
+            <div class="home-stat-value">{data_source_label}</div>
+            <div class="home-stat-note">{len(df):,} clean records</div>
+        </div>
+        <div class="home-stat-card">
+            <div class="home-stat-label">Total Revenue</div>
+            <div class="home-stat-value">£{total_revenue:,.0f}</div>
+            <div class="home-stat-note">{total_orders:,} orders</div>
+        </div>
+        <div class="home-stat-card">
+            <div class="home-stat-label">Customers</div>
+            <div class="home-stat-value">{total_customers:,}</div>
+            <div class="home-stat-note">{total_products:,} products</div>
+        </div>
+        <div class="home-stat-card">
+            <div class="home-stat-label">Date Range</div>
+            <div class="home-stat-value">{date_min}</div>
+            <div class="home-stat-note">to {date_max}</div>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.markdown("### Lumiq Dashboard Preview")
+snapshot_col1, snapshot_col2 = st.columns([1, 1])
+
+monthly_snapshot = df.groupby('Month')['Revenue'].sum().reset_index()
+monthly_snapshot['Month'] = monthly_snapshot['Month'].dt.strftime('%b %Y')
+
+with snapshot_col1:
+    fig = go.Figure(go.Scatter(
+        x=monthly_snapshot['Month'],
+        y=monthly_snapshot['Revenue'],
+        mode='lines+markers',
+        fill='tozeroy',
+        line=dict(color=COLORS["navy"], width=2),
+        fillcolor='rgba(120,198,214,0.22)',
+        marker=dict(size=6, color=COLORS["teal"]),
+    ))
+    apply_plotly_theme(fig, height=300)
+    fig.update_layout(title='Revenue Timeline')
+    fig.update_yaxes(title='Revenue (£)')
+    st.plotly_chart(fig, width='stretch')
+
+with snapshot_col2:
+    country_share = df.groupby('Country')['Revenue'].sum().sort_values(ascending=False).head(8).reset_index()
+    fig2 = go.Figure(go.Bar(
+        x=country_share['Country'],
+        y=country_share['Revenue'],
+        marker=dict(color=country_share['Revenue'], colorscale=TEAL_NAVY_SCALE, showscale=False),
+        text=[f"£{value:,.0f}" for value in country_share['Revenue']],
+        textposition='outside',
+    ))
+    apply_plotly_theme(fig2, height=300)
+    fig2.update_layout(title='Top Markets by Revenue')
+    fig2.update_xaxes(tickangle=-25)
+    fig2.update_yaxes(title='Revenue (£)')
+    st.plotly_chart(fig2, width='stretch')
+
+st.markdown(
+    """
+    <div class="explain-grid">
+        <div class="explain-card">
+            <div class="eyebrow">Executive</div>
+            <h3>Monitor performance</h3>
+            <p>Track revenue, orders, average order value, product concentration, and country contribution.</p>
+        </div>
+        <div class="explain-card">
+            <div class="eyebrow">Sales & Customers</div>
+            <h3>Find patterns</h3>
+            <p>Explore monthly growth, order timing, RFM segments, customer value, and retention signals.</p>
+        </div>
+        <div class="explain-card">
+            <div class="eyebrow">Products</div>
+            <h3>Prioritise action</h3>
+            <p>Identify top products, efficient markets, revenue concentration, and geographic opportunities.</p>
+        </div>
+        <div class="explain-card">
+            <div class="eyebrow">Data Access</div>
+            <h3>Upload now, API soon</h3>
+            <p>CSV/XLSX upload is supported today. API integration is coming soon, and broader CSV schema compatibility is in progress.</p>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)

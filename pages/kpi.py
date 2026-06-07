@@ -1,147 +1,235 @@
 import streamlit as st
 import sys
 sys.path.append('.')
-from data_loader import get_data
+from data_loader import load_data
+from html import escape
 import plotly.graph_objects as go
-import pandas as pd
+from theme import COLORS, TEAL_NAVY_SCALE, apply_plotly_theme, page_title
 
-st.markdown('<div class="section-title">Sales Performance</div>',
-            unsafe_allow_html=True)
-st.markdown("##### Revenue, Orders and Growth Analysis")
-st.markdown("---")
+page_title("Executive Overview")
 
 with st.spinner("Loading data..."):
-    df = get_data()
+    df = load_data()
 
-total_revenue   = df['Revenue'].sum()
-total_orders    = df['InvoiceNo'].nunique()
-avg_order_value = total_revenue / total_orders
-top_country     = df.groupby('Country')['Revenue'].sum().idxmax()
-top_product     = df.groupby('Description')['Revenue'].sum().idxmax()
-avg_items       = df.groupby('InvoiceNo')['Quantity'].sum().mean()
-best_month      = df.groupby('MonthStr')['Revenue'].sum().idxmax()
-best_day        = df.groupby(
-    df['InvoiceDate'].dt.day_name())['Revenue'].sum().idxmax()
+# Core KPIs
+total_revenue    = df['Revenue'].sum()
+total_orders     = df['InvoiceNo'].nunique()
+total_customers  = df['CustomerID'].nunique()
+total_products   = df['StockCode'].nunique()
+avg_order_value  = total_revenue / total_orders
+top_country      = df.groupby('Country')['Revenue'].sum().idxmax()
+top_product      = df.groupby('Description')['Revenue'].sum().idxmax()
+avg_items        = df.groupby('InvoiceNo')['Quantity'].sum().mean()
 
-st.markdown("### Sales KPIs")
-c1, c2, c3, c4 = st.columns(4)
-c1.metric("Total Revenue",   f"£{total_revenue:,.0f}")
-c2.metric("Total Orders",    f"{total_orders:,}")
-c3.metric("Avg Order Value", f"£{avg_order_value:,.2f}")
-c4.metric("Avg Items/Order", f"{avg_items:.1f}")
+country_rev = df.groupby('Country')['Revenue'].sum().sort_values(ascending=False).head(10).reset_index()
 
-st.markdown("---")
-c5, c6, c7, c8 = st.columns(4)
-c5.metric("Top Country",  top_country)
-c6.metric("Top Product",  top_product[:25] + "...")
-c7.metric("Peak Month",   best_month)
-c8.metric("Best Day",     best_day)
+st.markdown(
+    f"""
+    <div class="executive-header">
+        <div>
+            <div class="eyebrow">Executive Command View</div>
+            <h1>Performance at a glance</h1>
+            <p>Track revenue, customer reach, order value, market concentration, and product contribution from the active retail dataset.</p>
+        </div>
+        <div class="executive-badge">{len(df):,} clean records</div>
+    </div>
+    <div class="kpi-grid">
+        <div class="kpi-tile">
+            <div class="kpi-label">Total Revenue</div>
+            <div class="kpi-value">£{total_revenue:,.0f}</div>
+            <div class="kpi-note">Across all completed transactions</div>
+        </div>
+        <div class="kpi-tile">
+            <div class="kpi-label">Total Orders</div>
+            <div class="kpi-value">{total_orders:,}</div>
+            <div class="kpi-note">Unique invoices after cleaning</div>
+        </div>
+        <div class="kpi-tile">
+            <div class="kpi-label">Unique Customers</div>
+            <div class="kpi-value">{total_customers:,}</div>
+            <div class="kpi-note">Known customers with valid IDs</div>
+        </div>
+        <div class="kpi-tile">
+            <div class="kpi-label">Unique Products</div>
+            <div class="kpi-value">{total_products:,}</div>
+            <div class="kpi-note">Distinct stock codes sold</div>
+        </div>
+        <div class="kpi-tile">
+            <div class="kpi-label">Avg Order Value</div>
+            <div class="kpi-value">£{avg_order_value:,.2f}</div>
+            <div class="kpi-note">Revenue divided by orders</div>
+        </div>
+        <div class="kpi-tile">
+            <div class="kpi-label">Top Country</div>
+            <div class="kpi-value">{escape(str(top_country))}</div>
+            <div class="kpi-note">Highest revenue market</div>
+        </div>
+        <div class="kpi-tile">
+            <div class="kpi-label">Top Product</div>
+            <div class="kpi-value">{escape(top_product[:30] + "...")}</div>
+            <div class="kpi-note">Highest revenue item</div>
+        </div>
+        <div class="kpi-tile">
+            <div class="kpi-label">Avg Items / Order</div>
+            <div class="kpi-value">{avg_items:.1f}</div>
+            <div class="kpi-note">Average quantity per invoice</div>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-st.markdown("---")
+top_country_revenue = country_rev.iloc[0]['Revenue']
+top_country_share = top_country_revenue / total_revenue * 100
+top_product_revenue = df.groupby('Description')['Revenue'].sum().max()
+top_product_share = top_product_revenue / total_revenue * 100
 
-col1, col2 = st.columns([2, 1])
-with col1:
-    st.markdown("### Revenue by Country — Top 10")
-    country_rev = (df.groupby('Country')['Revenue']
-                   .sum().sort_values(ascending=False)
-                   .head(10).reset_index())
-    fig = go.Figure(go.Bar(
-        x=country_rev['Revenue'],
-        y=country_rev['Country'],
-        orientation='h',
-        marker=dict(color=country_rev['Revenue'],
-                    colorscale='Blues', showscale=False),
-        text=[f"£{v:,.0f}" for v in country_rev['Revenue']],
-        textposition='outside'))
-    fig.update_layout(
-        height=380, plot_bgcolor='white', paper_bgcolor='white',
-        xaxis=dict(showgrid=True, gridcolor='#f0f0f0',
-                   title='Revenue (£)'),
-        yaxis=dict(autorange='reversed'),
-        margin=dict(l=0, r=80, t=10, b=0))
-    st.plotly_chart(fig, use_container_width=True)
+st.markdown(
+    f"""
+    <div class="insight-grid">
+        <div class="exec-insight-card">
+            <div class="eyebrow">Market Focus</div>
+            <h3>{escape(str(top_country))} leads revenue</h3>
+            <p>This market contributes {top_country_share:.1f}% of total revenue, making it the strongest executive priority.</p>
+        </div>
+        <div class="exec-insight-card pink">
+            <div class="eyebrow">Product Focus</div>
+            <h3>{escape(top_product[:42])}</h3>
+            <p>The top product contributes {top_product_share:.1f}% of total revenue. Track concentration risk and stock availability.</p>
+        </div>
+        <div class="exec-insight-card green">
+            <div class="eyebrow">Order Quality</div>
+            <h3>£{avg_order_value:,.2f} average order</h3>
+            <p>Average items per order is {avg_items:.1f}, connecting basket size with overall revenue quality.</p>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
 
-with col2:
-    st.markdown("### Revenue Share")
-    top5   = (df.groupby('Country')['Revenue']
-              .sum().sort_values(ascending=False)
-              .head(5).reset_index())
-    others = total_revenue - top5['Revenue'].sum()
-    top5.loc[len(top5)] = ['Others', others]
-    fig2 = go.Figure(go.Pie(
-        labels=top5['Country'],
-        values=top5['Revenue'],
-        hole=0.45,
+st.markdown('<div class="executive-section-label">Market Performance</div>', unsafe_allow_html=True)
+
+fig = go.Figure(go.Bar(
+    x=country_rev['Revenue'],
+    y=country_rev['Country'],
+    orientation='h',
+    marker=dict(
+        color=country_rev['Revenue'],
+        colorscale=[[0, '#78C6D6'], [1, '#1F3B60']],
+        showscale=False
+    ),
+    text=[f"£{v:,.0f}" for v in country_rev['Revenue']],
+    textposition='outside'
+))
+fig.update_layout(
+    height=360,
+    plot_bgcolor='white',
+    paper_bgcolor='white',
+    font=dict(color='#182232'),
+    xaxis=dict(showgrid=True, gridcolor='#E5EDF2', title='Revenue (£)'),
+    yaxis=dict(autorange='reversed'),
+    margin=dict(l=0, r=80, t=20, b=20)
+)
+st.plotly_chart(fig, width='stretch')
+
+st.markdown('<div class="executive-section-label">Revenue Mix & Concentration</div>', unsafe_allow_html=True)
+mix_col1, mix_col2 = st.columns([1, 1])
+
+with mix_col1:
+    country_mix = df.groupby('Country')['Revenue'].sum().sort_values(ascending=False)
+    country_mix_display = country_mix.head(5).reset_index()
+    other_revenue = country_mix.iloc[5:].sum()
+    if other_revenue > 0:
+        country_mix_display.loc[len(country_mix_display)] = ['Other', other_revenue]
+
+    fig_mix = go.Figure(go.Pie(
+        labels=country_mix_display['Country'],
+        values=country_mix_display['Revenue'],
+        hole=0.52,
+        marker=dict(colors=[COLORS["navy"], COLORS["teal"], '#A8DCE6', COLORS["amber"], COLORS["pink"], '#D8E6EE']),
         textinfo='label+percent',
-        marker=dict(colors=[
-            '#0A0F1E', '#D4AF37', '#2E86AB',
-            '#E84855', '#3BB273', '#AAAAAA'
-        ])))
-    fig2.update_layout(
-        height=380, showlegend=False,
-        paper_bgcolor='white',
-        margin=dict(l=0, r=0, t=10, b=0))
-    st.plotly_chart(fig2, use_container_width=True)
+    ))
+    apply_plotly_theme(fig_mix, height=320, top_margin=30)
+    fig_mix.update_layout(title='Country Revenue Share', showlegend=False)
+    st.plotly_chart(fig_mix, width='stretch')
 
-st.markdown("---")
+with mix_col2:
+    product_rev = df.groupby('Description')['Revenue'].sum().sort_values(ascending=False).head(12).reset_index()
+    product_rev['CumulativeShare'] = product_rev['Revenue'].cumsum() / df['Revenue'].sum() * 100
+    fig_pareto = go.Figure()
+    fig_pareto.add_trace(go.Bar(
+        x=product_rev['Description'],
+        y=product_rev['Revenue'],
+        name='Revenue',
+        marker_color=COLORS["teal"],
+    ))
+    fig_pareto.add_trace(go.Scatter(
+        x=product_rev['Description'],
+        y=product_rev['CumulativeShare'],
+        name='Cumulative Share',
+        yaxis='y2',
+        mode='lines+markers',
+        line=dict(color=COLORS["navy"], width=2),
+    ))
+    apply_plotly_theme(fig_pareto, height=320, top_margin=35)
+    fig_pareto.update_layout(
+        title='Top Product Revenue Concentration',
+        yaxis=dict(title='Revenue (£)', gridcolor=COLORS["grid"]),
+        yaxis2=dict(title='Cumulative %', overlaying='y', side='right', range=[0, 100]),
+        legend=dict(orientation='h', yanchor='bottom', y=1.02),
+    )
+    fig_pareto.update_xaxes(tickangle=-35)
+    st.plotly_chart(fig_pareto, width='stretch')
 
-col3, col4 = st.columns(2)
-with col3:
-    st.markdown("### Revenue by Day of Week")
-    dow = (df.groupby(df['InvoiceDate'].dt.day_name())
-           ['Revenue'].sum().reset_index())
-    day_order = ['Monday','Tuesday','Wednesday',
-                 'Thursday','Friday','Saturday','Sunday']
-    dow['InvoiceDate'] = pd.Categorical(
-        dow['InvoiceDate'], categories=day_order, ordered=True)
-    dow = dow.sort_values('InvoiceDate')
-    fig3 = go.Figure(go.Bar(
-        x=dow['InvoiceDate'],
-        y=dow['Revenue'],
-        marker_color='#D4AF37',
-        text=[f"£{v:,.0f}" for v in dow['Revenue']],
-        textposition='outside'))
-    fig3.update_layout(
-        height=300, plot_bgcolor='white', paper_bgcolor='white',
-        yaxis=dict(showgrid=True, gridcolor='#f0f0f0',
-                   title='Revenue (£)'),
-        margin=dict(l=0, r=0, t=10, b=0))
-    st.plotly_chart(fig3, use_container_width=True)
+st.markdown('<div class="executive-section-label">Revenue Trend</div>', unsafe_allow_html=True)
+monthly = df.groupby('MonthStr')['Revenue'].sum().reset_index()
+monthly = monthly.sort_values('MonthStr')
 
-with col4:
-    st.markdown("### Top 10 Products by Revenue")
-    top_p = (df.groupby('Description')['Revenue']
-             .sum().sort_values(ascending=False)
-             .head(10).reset_index())
-    fig4 = go.Figure(go.Bar(
-        x=top_p['Revenue'],
-        y=top_p['Description'],
-        orientation='h',
-        marker_color='#0A0F1E',
-        text=[f"£{v:,.0f}" for v in top_p['Revenue']],
-        textposition='outside'))
-    fig4.update_layout(
-        height=300, plot_bgcolor='white', paper_bgcolor='white',
-        xaxis=dict(showgrid=True, gridcolor='#f0f0f0'),
-        yaxis=dict(autorange='reversed'),
-        margin=dict(l=0, r=80, t=10, b=0))
-    st.plotly_chart(fig4, use_container_width=True)
-
-st.markdown("---")
-st.markdown("### Monthly Revenue Overview")
-monthly = (df.groupby('MonthStr')['Revenue']
-           .sum().reset_index().sort_values('MonthStr'))
-fig5 = go.Figure()
-fig5.add_trace(go.Scatter(
+fig2 = go.Figure()
+fig2.add_trace(go.Scatter(
     x=monthly['MonthStr'], y=monthly['Revenue'],
     fill='tozeroy', mode='lines+markers',
-    line=dict(color='#2E86AB', width=2),
-    fillcolor='rgba(46,134,171,0.1)',
-    marker=dict(size=6, color='#D4AF37')))
-fig5.update_layout(
-    height=280, plot_bgcolor='white', paper_bgcolor='white',
+    line=dict(color='#1F3B60', width=2),
+    fillcolor='rgba(120,198,214,0.22)',
+    marker=dict(size=6, color='#78C6D6')
+))
+fig2.update_layout(
+    height=300,
+    plot_bgcolor='white', paper_bgcolor='white',
+    font=dict(color='#182232'),
     xaxis=dict(showgrid=False),
-    yaxis=dict(showgrid=True, gridcolor='#f0f0f0',
-               title='Revenue (£)'),
-    margin=dict(l=0, r=0, t=10, b=0))
-st.plotly_chart(fig5, use_container_width=True)
+    yaxis=dict(showgrid=True, gridcolor='#E5EDF2', title='Revenue (£)'),
+    margin=dict(l=0, r=0, t=10, b=10)
+)
+st.plotly_chart(fig2, width='stretch')
+
+st.markdown('<div class="executive-section-label">Order Economics</div>', unsafe_allow_html=True)
+monthly_detail = df.groupby('Month').agg(
+    Revenue=('Revenue', 'sum'),
+    Orders=('InvoiceNo', 'nunique'),
+).reset_index()
+monthly_detail['Month'] = monthly_detail['Month'].dt.strftime('%b %Y')
+monthly_detail['AverageOrderValue'] = monthly_detail['Revenue'] / monthly_detail['Orders']
+
+fig3 = go.Figure()
+fig3.add_trace(go.Bar(
+    x=monthly_detail['Month'],
+    y=monthly_detail['Orders'],
+    name='Orders',
+    marker_color=COLORS["teal"],
+))
+fig3.add_trace(go.Scatter(
+    x=monthly_detail['Month'],
+    y=monthly_detail['AverageOrderValue'],
+    name='Avg Order Value',
+    yaxis='y2',
+    mode='lines+markers',
+    line=dict(color=COLORS["navy"], width=2),
+))
+apply_plotly_theme(fig3, height=320, top_margin=35)
+fig3.update_layout(
+    yaxis=dict(title='Orders', gridcolor=COLORS["grid"]),
+    yaxis2=dict(title='Avg Order Value (£)', overlaying='y', side='right'),
+    legend=dict(orientation='h', yanchor='bottom', y=1.02),
+)
+st.plotly_chart(fig3, width='stretch')
