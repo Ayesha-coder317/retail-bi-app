@@ -1,7 +1,9 @@
 import streamlit as st
 import sys
 sys.path.append('.')
-from data_loader import clean_data, load_data
+from io import BytesIO
+
+from data_loader import clean_data, load_data, load_default_data
 import plotly.graph_objects as go
 from theme import COLORS, TEAL_NAVY_SCALE, apply_plotly_theme
 import pandas as pd
@@ -13,6 +15,29 @@ def load_uploaded_file(uploaded_file):
     else:
         raw_df = pd.read_excel(uploaded_file, engine="openpyxl")
     return clean_data(raw_df)
+
+
+@st.cache_data
+def prepare_test_dataset_downloads():
+    columns = [
+        "InvoiceNo",
+        "StockCode",
+        "Description",
+        "Quantity",
+        "InvoiceDate",
+        "UnitPrice",
+        "CustomerID",
+        "Country",
+    ]
+    test_df = load_default_data()[columns].head(2500).copy()
+    test_df["InvoiceDate"] = test_df["InvoiceDate"].dt.strftime("%Y-%m-%d %H:%M:%S")
+
+    csv_bytes = test_df.to_csv(index=False).encode("utf-8")
+    excel_buffer = BytesIO()
+    with pd.ExcelWriter(excel_buffer, engine="openpyxl") as writer:
+        test_df.to_excel(writer, index=False, sheet_name="Lumiq Test Data")
+    excel_bytes = excel_buffer.getvalue()
+    return test_df, csv_bytes, excel_bytes
 
 
 st.markdown(
@@ -69,6 +94,40 @@ with sample_col:
 with st.spinner("Loading dataset..."):
     df = load_data()
 data_source_label = "Uploaded dataset" if st.session_state.get("data_source") == "uploaded" else "Sample retail dataset"
+
+test_df, test_csv, test_excel = prepare_test_dataset_downloads()
+
+st.markdown(
+    f"""
+    <div class="download-panel">
+        <div>
+            <div class="eyebrow">Test Dataset</div>
+            <h3>Download sample files for upload testing</h3>
+            <p>Use these files to test Lumiq's supported retail transaction upload flow. The files include {len(test_df):,} rows in the current supported schema.</p>
+        </div>
+    </div>
+    """,
+    unsafe_allow_html=True,
+)
+
+download_col1, download_col2 = st.columns(2)
+with download_col1:
+    st.download_button(
+        "Download CSV test dataset",
+        data=test_csv,
+        file_name="lumiq_test_dataset.csv",
+        mime="text/csv",
+        width="stretch",
+    )
+
+with download_col2:
+    st.download_button(
+        "Download Excel test dataset",
+        data=test_excel,
+        file_name="lumiq_test_dataset.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        width="stretch",
+    )
 
 total_revenue = df['Revenue'].sum()
 total_orders = df['InvoiceNo'].nunique()

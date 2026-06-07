@@ -391,6 +391,25 @@ div[data-testid="stMetricValue"] {
     margin: 0 0 0.9rem;
 }
 
+.download-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--soft-shadow);
+    padding: 1.1rem 1.2rem;
+    margin: 0.95rem 0 0.75rem;
+}
+
+.download-panel h3 {
+    margin: 0.1rem 0 0.45rem !important;
+}
+
+.download-panel p {
+    color: var(--muted);
+    margin: 0;
+    line-height: 1.55;
+}
+
 .home-stats {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
