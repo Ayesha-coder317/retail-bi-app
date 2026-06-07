@@ -30,6 +30,7 @@ def apply_plotly_theme(fig, height=None, top_margin=56):
         "paper_bgcolor": COLORS["card"],
         "font": {"color": COLORS["text"]},
         "title": {
+            "text": "",
             "font": {"color": COLORS["text"], "size": 16},
             "x": 0,
             "xanchor": "left",
