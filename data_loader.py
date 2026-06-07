@@ -83,9 +83,19 @@ def get_rfm(df):
         Monetary=('Revenue', 'sum')
     ).reset_index()
 
-    rfm['R_Score'] = pd.qcut(rfm['Recency'], 4, labels=[4,3,2,1]).astype(int)
-    rfm['F_Score'] = pd.qcut(rfm['Frequency'].rank(method='first'), 4, labels=[1,2,3,4]).astype(int)
-    rfm['M_Score'] = pd.qcut(rfm['Monetary'].rank(method='first'), 4, labels=[1,2,3,4]).astype(int)
+    def score_by_rank(series, higher_is_better=True):
+        if series.empty:
+            return pd.Series(dtype=int)
+        pct_rank = series.rank(method='average', pct=True)
+        if higher_is_better:
+            score = np.ceil(pct_rank * 4)
+        else:
+            score = 5 - np.ceil(pct_rank * 4)
+        return score.clip(1, 4).astype(int)
+
+    rfm['R_Score'] = score_by_rank(rfm['Recency'], higher_is_better=False)
+    rfm['F_Score'] = score_by_rank(rfm['Frequency'], higher_is_better=True)
+    rfm['M_Score'] = score_by_rank(rfm['Monetary'], higher_is_better=True)
     rfm['RFM_Score'] = rfm['R_Score'] + rfm['F_Score'] + rfm['M_Score']
 
     def segment(score):

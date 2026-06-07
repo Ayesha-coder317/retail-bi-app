@@ -834,7 +834,12 @@ div[data-testid="stMetricValue"] {
 
 @media (max-width: 760px) {
     .block-container {
-        padding: 0.85rem 1rem 2rem;
+        padding: 0.55rem 0.65rem 5.5rem;
+        max-width: 100%;
+    }
+
+    [data-testid="stAppViewContainer"] {
+        overflow-x: hidden;
     }
 
     .brand-row {
@@ -854,11 +859,24 @@ div[data-testid="stMetricValue"] {
     }
 
     .top-nav {
-        border-radius: 24px;
+        border-radius: 20px;
+        min-height: auto;
+        padding: 0.95rem;
+        background: var(--navy-dark);
+        margin-bottom: 1rem;
     }
 
     div[role="radiogroup"] {
         justify-content: flex-start;
+        gap: 0.45rem;
+    }
+
+    div[role="radiogroup"] label {
+        padding: 0.42rem 0.5rem;
+    }
+
+    div[role="radiogroup"] label p {
+        font-size: 0.78rem;
     }
 
     .feature-grid,
@@ -873,5 +891,67 @@ div[data-testid="stMetricValue"] {
     .executive-header {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .page-title,
+    .section-title,
+    .executive-section-label {
+        font-size: 0.78rem;
+        letter-spacing: 0.13rem;
+        margin-bottom: 0.8rem;
+    }
+
+    [data-testid="stPlotlyChart"],
+    [data-testid="stDataFrame"] {
+        border-radius: 18px;
+        padding: 1rem 0.35rem 0.45rem;
+        overflow: hidden;
+    }
+
+    [data-testid="stPlotlyChart"] .modebar {
+        display: none !important;
+    }
+
+    [data-testid="stPlotlyChart"] .gtitle {
+        font-size: 14px !important;
+    }
+
+    [data-testid="stPlotlyChart"] .xtick text,
+    [data-testid="stPlotlyChart"] .ytick text,
+    [data-testid="stPlotlyChart"] .legend text {
+        font-size: 10px !important;
+    }
+
+    .home-hero,
+    .home-stat-card,
+    .download-panel,
+    .content-card,
+    .explain-card,
+    .kpi-tile,
+    .exec-insight-card {
+        border-radius: 18px;
+    }
+
+    .home-hero {
+        padding: 1.15rem;
+    }
+
+    .hero-title {
+        font-size: 2.4rem;
+    }
+
+    .hero-copy {
+        font-size: 0.92rem;
+        line-height: 1.55;
+    }
+
+    .hero-chip {
+        font-size: 0.74rem;
+        padding: 0.45rem 0.62rem;
+    }
+
+    .home-stat-value,
+    .kpi-value {
+        font-size: 1.45rem;
     }
 }

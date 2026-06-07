@@ -29,7 +29,14 @@ def prepare_test_dataset_downloads():
         "CustomerID",
         "Country",
     ]
-    test_df = load_default_data()[columns].head(2500).copy()
+    default_df = load_default_data()[columns].copy()
+    sample_size = min(5000, len(default_df))
+    test_df = (
+        default_df
+        .sample(n=sample_size, random_state=42)
+        .sort_values("InvoiceDate")
+        .reset_index(drop=True)
+    )
     test_df["InvoiceDate"] = test_df["InvoiceDate"].dt.strftime("%Y-%m-%d %H:%M:%S")
 
     csv_bytes = test_df.to_csv(index=False).encode("utf-8")

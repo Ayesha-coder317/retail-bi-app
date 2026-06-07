@@ -38,12 +38,13 @@ def apply_plotly_theme(fig, height=None, top_margin=56):
             "pad": {"t": 12, "b": 18},
         },
         "margin": {"l": 0, "r": 0, "t": top_margin, "b": 0},
+        "modebar": {"orientation": "h"},
     }
     if height:
         layout["height"] = height
     fig.update_layout(**layout)
-    fig.update_xaxes(gridcolor=COLORS["grid"])
-    fig.update_yaxes(gridcolor=COLORS["grid"])
+    fig.update_xaxes(gridcolor=COLORS["grid"], automargin=True, tickfont={"size": 11})
+    fig.update_yaxes(gridcolor=COLORS["grid"], automargin=True, tickfont={"size": 11})
     return fig
 
 
